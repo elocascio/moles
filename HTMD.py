@@ -150,8 +150,9 @@ EOF""")
 #            destination=['ettore.locascio@unicatt.it', 'alessandro.arcovito@unicatt.it'], 
             destination= 'ettore.locascio@unicatt.it',
             subject = f"Report of Ligand-PALS1 {loop}/{len(ligList)}",
-            content= body
-            attachments = "../Report.html")
+            content= body,
+            attachments = "../Report.html",
+            )
         
         df.to_pickle("../Report")
     else: pass
