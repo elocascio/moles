@@ -131,7 +131,7 @@ EOF""")
             'ligand': ligList[:loop],
             'status': status_list,
             'mean': mean,
-            'smiles' : smiles)}
+            'smiles' : smiles})
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['mean', 'status'], ascending = False)
         content = f"""
