@@ -12,7 +12,7 @@ from utils import plot_xvg, send_mail, detachmet, get_zinc_smile
 from subprocess import Popen, PIPE
 import pandas as pd
 import pickle as pkl
-from rdkit.Chem import PandasTools
+from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 
 name, lig_pattern, receptor = argv
 
@@ -21,6 +21,7 @@ ligList = glob.glob(f'{lig_pattern}*.mol2')
 loop = 1
 status_list = []
 mean = []
+smiles = []
 
 print(receptor, len(ligList))
 
@@ -28,6 +29,7 @@ system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water ti
 
 for mol2 in ligList:
     filename, ext = splitext(mol2)
+    smile = MolToSmiles(MolFromMol2File(mol2))
     ligpdb = filename + '.pdb'
     makedirs(filename,  exist_ok=True)
     rename(mol2, f'{filename}/{mol2}')
@@ -118,6 +120,7 @@ EOF""")
     status, contacts_mean = detachmet(contacts)
     status_list.append(status)
     mean.append(contacts_mean)
+    smiles.append(smile)
 
     pkl.dump(ligList, open('../ligList', 'wb'))
     pkl.dump(status_list, open('../status', 'wb'))
@@ -127,10 +130,10 @@ EOF""")
         df = pd.DataFrame({
             'ligand': ligList[:loop],
             'status': status_list,
-            'mean': mean})
+            'mean': mean}
+            'smiles' : smiles)
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['mean', 'status'], ascending = False)
-        df['smiles'] = df['ligand'].apply(get_zinc_smile)
         content = f"""
     This is an auto-generated email. Do not respond to this email address.
     
