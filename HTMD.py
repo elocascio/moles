@@ -29,7 +29,11 @@ system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water ti
 
 for mol2 in ligList:
     filename, ext = splitext(mol2)
-    smile = MolToSmiles(MolFromMol2File(mol2))
+    
+    try:
+        smile = MolToSmiles(MolFromMol2File(mol2),True, True)
+    except:
+        smile = 'C'
     ligpdb = filename + '.pdb'
     makedirs(filename,  exist_ok=True)
     rename(mol2, f'{filename}/{mol2}')
@@ -130,10 +134,10 @@ EOF""")
         df = pd.DataFrame({
             'ligand': ligList[:loop],
             'status': status_list,
-            'mean': mean,
+            'contacts_average': mean,
             'smiles' : smiles})
         df = df[df['status'] != 'ERROR']
-        df = df.sort_values(by=['mean', 'status'], ascending = False)
+        df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         body = f"""
     This is an auto-generated email. Do not respond to this email address.
     
