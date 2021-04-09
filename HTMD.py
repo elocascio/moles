@@ -134,7 +134,7 @@ EOF""")
             'smiles' : smiles})
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['mean', 'status'], ascending = False)
-        content = f"""
+        body = f"""
     This is an auto-generated email. Do not respond to this email address.
     
     HTMD
@@ -144,11 +144,16 @@ EOF""")
     
     Best Ligand:
     {df.head()}""" 
-
-        send_mail('ettore.locascio@unicatt.it', content)
-        
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-        pkl.dump(df, open('Report', 'w'))
+        df.to_html('../Report.html')
+        send_mail(
+#            destination=['ettore.locascio@unicatt.it', 'alessandro.arcovito@unicatt.it'], 
+            destination= 'ettore.locascio@unicatt.it',
+            subject = f"Report of Ligand-PALS1 {loop}/{len(ligList)}",
+            content= body
+            attachments = "../Report.html")
+        
+        df.to_pickle("../Report")
     else: pass
     loop += 1
     chdir('../')
