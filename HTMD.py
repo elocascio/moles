@@ -31,7 +31,7 @@ for mol2 in ligList:
     filename, ext = splitext(mol2)
     
     try:
-        smile = MolToSmiles(MolFromMol2File(mol2),True, True)
+        smile = MolToSmiles(MolFromMol2File(mol2))
     except:
         smile = 'C'
     ligpdb = filename + '.pdb'
@@ -146,6 +146,8 @@ EOF""")
     Attached : {status_list.count('attached')}
     Detached : {status_list.count('detachment')}
     
+    In allegato il report da aprire con browser!
+
     Best Ligand:
     {df.head()}""" 
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
@@ -158,7 +160,7 @@ EOF""")
             destination= 'ettore.locascio@unicatt.it',
             subject = f"Report of Ligand-PALS1 {loop}/{len(ligList)}",
             content= body,
-            attachments = "../Report.html",
+            attachment = "../Report.html",
             )
         
         df.to_pickle("../Report")
