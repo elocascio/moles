@@ -120,7 +120,7 @@ EOF""")
     mean.append(contacts_mean)
 
     pkl.dump(ligList, open('../ligList', 'wb'))
-    pkl.dumb(status_list, open('../status', 'wb'))
+    pkl.dump(status_list, open('../status', 'wb'))
     pkl.dump(mean, open('../mean', 'wb'))
     
     if loop % 5 == 0:
