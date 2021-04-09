@@ -46,7 +46,7 @@ for mol2 in ligList:
 
 # WRITE ITP FILE
     if not isfile(f'{ligand_ff}/ffbonded.itp'): 
-        status.append('ERROR')
+        status_list.append('ERROR')
         mean.append('ERROR')
         print('ERROR')
         sleep(1)
