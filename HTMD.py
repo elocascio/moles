@@ -130,8 +130,8 @@ EOF""")
         df = pd.DataFrame({
             'ligand': ligList[:loop],
             'status': status_list,
-            'mean': mean}
-            'smiles' : smiles)
+            'mean': mean,
+            'smiles' : smiles)}
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['mean', 'status'], ascending = False)
         content = f"""
