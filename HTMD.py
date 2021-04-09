@@ -1,5 +1,5 @@
 from os import system, getcwd, listdir, makedirs, rename, chdir
-from os.path import splitext
+from os.path import splitext, isfile
 from sys import argv
 import glob
 from var import *
@@ -10,12 +10,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, detachmet
 from subprocess import Popen, PIPE
+import pandas as pd
+import pickle as pkl
+from rdkit.Chem import PandasTools
 
 name, lig_pattern, receptor = argv
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
+
 loop = 1
 status_list = []
+mean = []
+
 print(receptor, len(ligList))
 
 system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top')
@@ -29,12 +35,16 @@ for mol2 in ligList:
     system(f'{MATCH} {mol2}')
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
     ligand_ff = f'{filename}.ff'
-    system(f'babel -imol2 {mol2} -opdb {filename}.pdb')
+    system(f'obabel -imol2 {mol2} -opdb -O {filename}.pdb')
     system(f'{gmx} pdb2gmx --ff {filename} -f {filename}.pdb -o Ligand_gmx.pdb -p Ligand.top')
 
-
 # WRITE ITP FILE
-
+    if not isfile(f'{ligand_ff}/ffbonded.itp'): 
+        status.append('ERROR')
+        mean.append('ERROR')
+        print('ERROR')
+        sleep(1)
+        continue
     with open(f'{ligand_ff}/ffbonded.itp') as ffbonded, open(f'{ligand_ff}/ffnonbonded.itp') as ffnonbonded, open(f'Ligand.top') as ligand_top, open(f'{filename}.itp', 'w') as ligand_itp:
         ffnonbonded_lines = ffnonbonded.readlines()
         ffbonded_lines = ffbonded.readlines()
@@ -105,20 +115,37 @@ EOF""")
     EOF""")
 
     time, contacts = plot_xvg('contacts.xvg', 'number' ,'time', 'concats')
-    status = detachmet(contacts)
+    status, contacts_mean = detachmet(contacts)
     status_list.append(status)
+    mean.append(contacts_mean)
 
-    loop += 1
+    pkl.dump(ligList, open('../ligList', 'wb'))
+    pkl.dumb(status_list, open('../status', 'wb'))
+    pkl.dump(mean, open('../mean', 'wb'))
+    
     if loop % 5 == 0:
+        df = pd.DataFrame({
+            'ligand': ligList[:loop],
+            'status': status_list,
+            'mean': mean})
+        df = df[df['status'] != 'ERROR']
+        df = df.sort_values(by=['mean', 'status'], ascending = False)
+        df['smiles'] = df['ligand'].apply(get_zinc_smile)
         content = f"""
     This is an auto-generated email. Do not respond to this email address.
     
     HTMD
     Ligand processed : {loop}/{len(ligList)}
     Attached : {status_list.count('attached')}
-    Detached : {status_list.count('detachment')}""" 
+    Detached : {status_list.count('detachment')}
+    
+    Best Ligand:
+    {df.head()}""" 
 
         send_mail('ettore.locascio@unicatt.it', content)
+        
+        PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
+        pkl.dump(df, open('Report', 'w'))
     else: pass
-
+    loop += 1
     chdir('../')
