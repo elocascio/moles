@@ -149,7 +149,10 @@ EOF""")
     Best Ligand:
     {df.head()}""" 
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-        df.to_html('../Report.html')
+        report = df.to_html()
+        with open('../Report.html', 'w') as html:
+            html.write(report)
+
         send_mail(
 #            destination=['ettore.locascio@unicatt.it', 'alessandro.arcovito@unicatt.it'], 
             destination= 'ettore.locascio@unicatt.it',
