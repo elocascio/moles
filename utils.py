@@ -45,7 +45,7 @@ def detachmet(contacts):
 
 import yagmail
 
-def send_mail(destination, subject, content, attachments):
+def send_mail(destination, subject, content, attachment):
     yag = yagmail.SMTP(user = "dinamica.molecolare@gmail.com", password = "AutoNotif1!")
     yag.send(
         to = destination,
