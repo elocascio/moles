@@ -53,4 +53,4 @@ def send_mail(destination, subject, content, attachment):
         contents = content,
         attachments = attachment,
     )
-    print('send')
+    print('email sent')

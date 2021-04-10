@@ -14,7 +14,7 @@ import pandas as pd
 import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 
-name, lig_pattern, receptor = argv
+name, lig_pattern, receptor, num = argv
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
 
@@ -130,7 +130,7 @@ EOF""")
     pkl.dump(status_list, open('../status', 'wb'))
     pkl.dump(mean, open('../mean', 'wb'))
     
-    if loop % 5 == 0:
+    if loop % int(num) == 0 or loop == len(ligList):
         df = pd.DataFrame({
             'ligand': ligList[:loop],
             'status': status_list,
@@ -141,6 +141,8 @@ EOF""")
         body = f"""
     This is an auto-generated email. Do not respond to this email address.
     
+    This is {name} (aka {real_name}), reporting:
+
     HTMD
     Ligand processed : {loop}/{len(ligList)}
     Attached : {status_list.count('attached')}
