@@ -14,6 +14,7 @@ import pandas as pd
 import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 
+
 name, lig_pattern, receptor, num = argv
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
@@ -23,9 +24,10 @@ status_list = []
 mean = []
 smiles = []
 
+
 print(receptor, len(ligList))
 
-system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top')
+system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
 for mol2 in ligList:
     filename, ext = splitext(mol2)
@@ -42,7 +44,7 @@ for mol2 in ligList:
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
     ligand_ff = f'{filename}.ff'
     system(f'obabel -imol2 {mol2} -opdb -O {filename}.pdb')
-    system(f'{gmx} pdb2gmx --ff {filename} -f {filename}.pdb -o Ligand_gmx.pdb -p Ligand.top')
+    system(f'{gmx} pdb2gmx --ff {filename} -f {filename}.pdb -o Ligand_gmx.pdb -p Ligand.top {null}')
 
 # WRITE ITP FILE
     if not isfile(f'{ligand_ff}/ffbonded.itp'): 
@@ -88,12 +90,12 @@ for mol2 in ligList:
             if line.startswith('ATOM') or line.startswith('HETATM'):
                 Complex.write(line)
     
-    system(f'{gmx} editconf -f {Complex.name} -o {Complex.name} -d 1.0')
-    system(f'{gmx} solvate -cp {Complex.name} -o {Complex.name} -p topol.top')
+    system(f'{gmx} editconf -f {Complex.name} -o {Complex.name} -d 1.0 {null}')
+    system(f'{gmx} solvate -cp {Complex.name} -o {Complex.name} -p topol.top {null}')
 
     ions_mdp = make_mdp('ions')
-    system(f'{gmx} grompp -f {ions_mdp} -c {Complex.name} -p topol.top -o Complex_b4ion.tpr -maxwarn 10')
-    system(f'echo 15 | {gmx} genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top')
+    system(f'{gmx} grompp -f {ions_mdp} -c {Complex.name} -p topol.top -o Complex_b4ion.tpr -maxwarn 10 {null}')
+    system(f'echo 15 | {gmx} genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top {null}')
 
     system(f"""{gmx} make_ndx -f Complex_4mini.pdb -o index.ndx << EOF
 1 | 20
@@ -103,18 +105,18 @@ EOF""")
 #    system(f'echo "Protein_UNK" | {gmx} genrestr -f Complex_4mini.pdb -n index.ndx')
 #    if os.path.isfile('')
     mini_mdp = make_mdp(mdp = 'mini')
-    system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
+    system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10 {null}')
     system(f'{mdrun} -v -deffnm mini')
     
     equi_mdp = make_mdp(mdp = 'equi')
-    system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10')
+    system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
     system(f'{mdrun} -v -deffnm equi')
 
     MD_mdp = make_mdp(mdp = 'MD')
-    system(f'{gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10')
+    system(f'{gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10 {null}')
     system(f'{mdrun} -v -deffnm MD')
 
-    system(f'{gmx} editconf -f MD.tpr -o MD.pdb')
+    system(f'{gmx} editconf -f MD.tpr -o MD.pdb {null}')
     system(f"""{gmx} mindist -f MD.xtc -s MD.tpr -d 0.45 -n index.ndx -on contacts.xvg << EOF
     Protein
     13
@@ -148,18 +150,14 @@ EOF""")
     Attached : {status_list.count('attached')}
     Detached : {status_list.count('detachment')}
     
-    In allegato il report da aprire con browser!
-
-    Best Ligand:
-    {df.head()}""" 
+    In allegato il report da aprire con browser!""" 
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
         report = df.to_html()
         with open('../Report.html', 'w') as html:
             html.write(report)
 
         send_mail(
-#            destination=['ettore.locascio@unicatt.it', 'alessandro.arcovito@unicatt.it'], 
-            destination= 'ettore.locascio@unicatt.it',
+            destination=['ettore.locascio@unicatt.it', 'alessandro.arcovito@unicatt.it'],
             subject = f"Report of Ligand-PALS1 {loop}/{len(ligList)}",
             content= body,
             attachment = "../Report.html",
