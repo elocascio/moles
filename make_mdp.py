@@ -1,9 +1,9 @@
-def make_mdp(mdp = 'MD', ns = 100, dt = 0.002, nstxout = 0, nstvout = 0, nstenergy = 0):
+def make_mdp(mdp = 'MD', ns = 10, dt = 0.002, nstxout = 0, nstvout = 0, nstenergy = 0):
     
     if mdp == 'MD':
         with open (f'{mdp}.mdp', 'w') as fout:
             nsteps = int(ns * 1000 / dt)
-            save_everyframes = int(nsteps / 100)
+            save_everyframes = int(nsteps / 1000)
             fout.write(f""";
 integrator              = md
 dt                      = {dt}
