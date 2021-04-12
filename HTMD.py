@@ -23,7 +23,7 @@ loop = 1
 status_list = []
 mean = []
 smiles = []
-
+rmsd_list = []
 
 print(receptor, len(ligList))
 
@@ -121,11 +121,17 @@ EOF""")
     Protein
     13
     EOF""")
+    system(f"""{gmx} rms -f MD.xtc -s MD.tpr -n index.ndx << EOF
+    24
+    13
+    EOF""")
 
-    time, contacts = plot_xvg('contacts.xvg', 'number' ,'time', 'concats')
+    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats')
+    time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(contacts)
     status_list.append(status)
     mean.append(contacts_mean)
+    rmsd_list.append(np.mean(rmsd) * 10)
     smiles.append(smile)
 
     pkl.dump(ligList, open('../ligList', 'wb'))
@@ -138,6 +144,7 @@ EOF""")
             'ligand': ligList[:loop],
             'status': status_list,
             'contacts_average': mean,
+            'RMSD (Å)' : rmsd_list,
             'smiles' : smiles})
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
