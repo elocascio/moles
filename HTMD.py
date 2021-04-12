@@ -149,16 +149,15 @@ EOF""")
     HTMD
     Ligand processed : {loop}/{len(ligList)}
     Attached : {status_list.count('attached')}
-    Detached : {status_list.count('detachment')}
-    
-    In allegato il report da aprire con browser!""" 
+    Detached : {status_list.count('detachment')}"""
+
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
         report = df.to_html()
         with open('../Report.html', 'w') as html:
             html.write(report)
 
         send_mail(
-            destination=['ettore.locascio@unicatt.it', 'alessandro.arcovito@unicatt.it'],
+            destination='ettore.locascio@unicatt.it',
             subject = f"Report of Ligand-PALS1 {loop}/{len(ligList)}",
             content= body,
             attachment = "../Report.html",
