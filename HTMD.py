@@ -15,7 +15,7 @@ import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 
 
-_, lig_pattern, receptor, num = argv
+_, lig_pattern, receptor, num , nt, gpu_id= argv
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
 
@@ -106,15 +106,15 @@ EOF""")
 #    if os.path.isfile('')
     mini_mdp = make_mdp(mdp = 'mini')
     system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10 {null}')
-    system(f'{mdrun} -v -deffnm mini')
+    system(f'{mdrun} -v -deffnm mini -nt {nt} -gpu_id {gpu_id}')
     
     equi_mdp = make_mdp(mdp = 'equi')
     system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
-    system(f'{mdrun} -v -deffnm equi')
+    system(f'{mdrun} -v -deffnm equi -nt {nt} -gpu_id {gpu_id}')
 
     MD_mdp = make_mdp(mdp = 'MD')
     system(f'{gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10 {null}')
-    system(f'{mdrun} -v -deffnm MD')
+    system(f'{mdrun} -v -deffnm MD -nt {nt} -gpu_id {gpu_id}')
 
     system(f'{gmx} editconf -f MD.tpr -o MD.pdb {null}')
     system(f"""{gmx} mindist -f MD.xtc -s MD.tpr -d 0.45 -n index.ndx -on contacts.xvg << EOF
