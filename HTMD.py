@@ -15,7 +15,7 @@ import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 
 
-name, lig_pattern, receptor, num = argv
+_, lig_pattern, receptor, num = argv
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
 
@@ -132,7 +132,7 @@ EOF""")
     pkl.dump(status_list, open('../status', 'wb'))
     pkl.dump(mean, open('../mean', 'wb'))
     pkl.dump(smiles, open('../smiles', 'wb'))
-    
+
     if loop % int(num) == 0 or loop == len(ligList):
         df = pd.DataFrame({
             'ligand': ligList[:loop],
