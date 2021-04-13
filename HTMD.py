@@ -39,7 +39,7 @@ for mol2 in ligList:
     makedirs(filename,  exist_ok=True)
     rename(mol2, f'{filename}/{mol2}')
     chdir(filename)
-    system(f'{MATCH} {mol2}')
+    system(f'{MATCH} {mol2} {null}')
     if not isfile(f'{filename}.prm'):
         status_list.append('ERROR')
         mean.append('ERROR')
@@ -48,10 +48,11 @@ for mol2 in ligList:
         print('ERROR')
         sleep(1)
         chdir('../')
+        loop += 1
         continue
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
     ligand_ff = f'{filename}.ff'
-    system(f'obabel -imol2 {mol2} -opdb -O {filename}.pdb')
+    system(f'obabel -imol2 {mol2} -opdb -O {filename}.pdb {null}')
     system(f'{gmx} pdb2gmx --ff {filename} -f {filename}.pdb -o Ligand_gmx.pdb -p Ligand.top {null}')
 
 # WRITE ITP FILE
@@ -63,6 +64,7 @@ for mol2 in ligList:
         print('ERROR')
         sleep(1)
         chdir('../')
+        loop += 1
         continue
     with open(f'{ligand_ff}/ffbonded.itp') as ffbonded, open(f'{ligand_ff}/ffnonbonded.itp') as ffnonbonded, open(f'Ligand.top') as ligand_top, open(f'{filename}.itp', 'w') as ligand_itp:
         ffnonbonded_lines = ffnonbonded.readlines()
@@ -117,11 +119,11 @@ EOF""")
 #    if os.path.isfile('')
     mini_mdp = make_mdp(mdp = 'mini')
     system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10 {null}')
-    system(f'{mdrun} -v -deffnm mini -nt {nt} -gpu_id {gpu_id}')
+    system(f'{mdrun} -deffnm mini -nt {nt} -gpu_id {gpu_id} {null}')
     
     equi_mdp = make_mdp(mdp = 'equi')
     system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
-    system(f'{mdrun} -v -deffnm equi -nt {nt} -gpu_id {gpu_id}')
+    system(f'{mdrun} -deffnm equi -nt {nt} -gpu_id {gpu_id}')
 
     MD_mdp = make_mdp(mdp = 'MD')
     system(f'{gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10 {null}')
