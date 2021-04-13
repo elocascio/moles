@@ -14,7 +14,7 @@ import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 
 
-_, lig_pattern, receptor, num , nt, gpu_id= argv
+_, lig_pattern, receptor, num , nt, gpu_id = argv
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
 
@@ -47,6 +47,7 @@ for mol2 in ligList:
         rmsd_list.append('ERROR')
         print('ERROR')
         sleep(1)
+        chdir('../')
         continue
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
     ligand_ff = f'{filename}.ff'
@@ -61,6 +62,7 @@ for mol2 in ligList:
         rmsd_list.append('ERROR')
         print('ERROR')
         sleep(1)
+        chdir('../')
         continue
     with open(f'{ligand_ff}/ffbonded.itp') as ffbonded, open(f'{ligand_ff}/ffnonbonded.itp') as ffnonbonded, open(f'Ligand.top') as ligand_top, open(f'{filename}.itp', 'w') as ligand_itp:
         ffnonbonded_lines = ffnonbonded.readlines()
