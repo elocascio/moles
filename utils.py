@@ -28,7 +28,7 @@ def detachmet(contacts):
     contacts_mean = np.mean(contacts)
     for contact in contacts:
         if contact / contact0 < 0.40:
-            status = 'detachmet'
+            status = 'detachment'
             break
         else: status = 'attached'
     
