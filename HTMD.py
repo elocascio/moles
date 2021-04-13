@@ -9,7 +9,6 @@ from time import sleep
 import numpy as np 
 import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, detachmet
-from subprocess import Popen, PIPE
 import pandas as pd
 import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
@@ -41,6 +40,14 @@ for mol2 in ligList:
     rename(mol2, f'{filename}/{mol2}')
     chdir(filename)
     system(f'{MATCH} {mol2}')
+    if not isfile(f'{filename}.prm'):
+        status_list.append('ERROR')
+        mean.append('ERROR')
+        smiles.append('ERROR')
+        rmsd_list.append('ERROR')
+        print('ERROR')
+        sleep(1)
+        continue
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
     ligand_ff = f'{filename}.ff'
     system(f'obabel -imol2 {mol2} -opdb -O {filename}.pdb')
@@ -50,6 +57,8 @@ for mol2 in ligList:
     if not isfile(f'{ligand_ff}/ffbonded.itp'): 
         status_list.append('ERROR')
         mean.append('ERROR')
+        smiles.append('ERROR')
+        rmsd_list.append('ERROR')
         print('ERROR')
         sleep(1)
         continue

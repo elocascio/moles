@@ -1,0 +1,235 @@
+;
+;	File 'Ligand.top' was generated
+;	By user: stefano (1000)
+;	On host: stefano-H170-HD3
+;	At date: Tue Apr 13 10:27:17 2021
+;
+;	This is a standalone topology file
+;
+;	Created by:
+;	                    :-) GROMACS - gmx pdb2gmx, 2018.1 (-:
+;	
+;	Executable:   /usr/bin/gmx
+;	Data prefix:  /usr
+;	Working dir:  /home/stefano/htmd/tests/ZINC000057219042
+;	Command line:
+;	  gmx pdb2gmx --ff ZINC000057219042 -f ZINC000057219042.pdb -o Ligand_gmx.pdb -p Ligand.top
+;	Force field was read from current directory or a relative path - path added.
+;
+
+; Include forcefield parameters
+#include "./ZINC000057219042.ff/forcefield.itp"
+
+[ moleculetype ]
+; Name            nrexcl
+Other_chain_A       3
+
+[ atoms ]
+;   nr       type  resnr residue  atom   cgnr     charge       mass  typeB    chargeB      massB
+; residue   1 UNK rtp UNK  q -1.0
+     1       O2D2      1    UNK     O1      1      -0.76     15.999   ; qtot -0.76
+     2       C2O3      1    UNK     C2      2       0.62     12.011   ; qtot -0.14
+     3       O2D2      1    UNK     O3      3      -0.76     15.999   ; qtot -0.9
+     4       CC51      1    UNK     C4      4       0.06     12.011   ; qtot -0.84
+     5       CC52      1    UNK     C5      5      -0.18     12.011   ; qtot -1.02
+     6       CC52      1    UNK     C6      6      -0.18     12.011   ; qtot -1.2
+     7       CC51      1    UNK     C7      7       0.24     12.011   ; qtot -0.96
+     8       C302      1    UNK     C8      8       0.34     12.011   ; qtot -0.62
+     9       FGA3      1    UNK     F9      9      -0.14     18.998   ; qtot -0.76
+    10       FGA3      1    UNK    F10     10      -0.14     18.998   ; qtot -0.9
+    11       FGA3      1    UNK    F11     11      -0.14     18.998   ; qtot -1.04
+    12       N351      1    UNK    N12     12      -0.86     14.007   ; qtot -1.9
+    13       HGA1      1    UNK    H13     13       0.09      1.008   ; qtot -1.81
+    14       HGA1      1    UNK    H14     14       0.09      1.008   ; qtot -1.72
+    15       HGA2      1    UNK    H15     15       0.09      1.008   ; qtot -1.63
+    16       HGA2      1    UNK    H16     16       0.09      1.008   ; qtot -1.54
+    17       HGA2      1    UNK    H17     17       0.09      1.008   ; qtot -1.45
+    18       HGA2      1    UNK    H18     18       0.09      1.008   ; qtot -1.36
+    19       HGP1      1    UNK    H19     19       0.36      1.008   ; qtot -1
+
+[ bonds ]
+;  ai    aj funct            c0            c1            c2            c3
+    1     2     1 
+    2     3     1 
+    2     4     1 
+    4     5     1 
+    4    12     1 
+    4    13     1 
+    5     6     1 
+    5    15     1 
+    5    16     1 
+    6     7     1 
+    6    17     1 
+    6    18     1 
+    7     8     1 
+    7    12     1 
+    7    14     1 
+    8     9     1 
+    8    10     1 
+    8    11     1 
+   12    19     1 
+
+[ pairs ]
+;  ai    aj funct            c0            c1            c2            c3
+    1     5     1 
+    1    12     1 
+    1    13     1 
+    2     6     1 
+    2     7     1 
+    2    15     1 
+    2    16     1 
+    2    19     1 
+    3     5     1 
+    3    12     1 
+    3    13     1 
+    4     8     1 
+    4    14     1 
+    4    17     1 
+    4    18     1 
+    5     8     1 
+    5    14     1 
+    5    19     1 
+    6     9     1 
+    6    10     1 
+    6    11     1 
+    6    13     1 
+    6    19     1 
+    7    13     1 
+    7    15     1 
+    7    16     1 
+    8    17     1 
+    8    18     1 
+    8    19     1 
+    9    12     1 
+    9    14     1 
+   10    12     1 
+   10    14     1 
+   11    12     1 
+   11    14     1 
+   12    15     1 
+   12    16     1 
+   12    17     1 
+   12    18     1 
+   13    15     1 
+   13    16     1 
+   13    19     1 
+   14    17     1 
+   14    18     1 
+   14    19     1 
+   15    17     1 
+   15    18     1 
+   16    17     1 
+   16    18     1 
+
+[ angles ]
+;  ai    aj    ak funct            c0            c1            c2            c3
+    1     2     3     5 
+    1     2     4     5 
+    3     2     4     5 
+    2     4     5     5 
+    2     4    12     5 
+    2     4    13     5 
+    5     4    12     5 
+    5     4    13     5 
+   12     4    13     5 
+    4     5     6     5 
+    4     5    15     5 
+    4     5    16     5 
+    6     5    15     5 
+    6     5    16     5 
+   15     5    16     5 
+    5     6     7     5 
+    5     6    17     5 
+    5     6    18     5 
+    7     6    17     5 
+    7     6    18     5 
+   17     6    18     5 
+    6     7     8     5 
+    6     7    12     5 
+    6     7    14     5 
+    8     7    12     5 
+    8     7    14     5 
+   12     7    14     5 
+    7     8     9     5 
+    7     8    10     5 
+    7     8    11     5 
+    9     8    10     5 
+    9     8    11     5 
+   10     8    11     5 
+    4    12     7     5 
+    4    12    19     5 
+    7    12    19     5 
+
+[ dihedrals ]
+;  ai    aj    ak    al funct            c0            c1            c2            c3            c4            c5
+    1     2     4     5     9 
+    1     2     4    12     9 
+    1     2     4    13     9 
+    3     2     4     5     9 
+    3     2     4    12     9 
+    3     2     4    13     9 
+    2     4     5     6     9 
+    2     4     5    15     9 
+    2     4     5    16     9 
+   12     4     5     6     9 
+   12     4     5    15     9 
+   12     4     5    16     9 
+   13     4     5     6     9 
+   13     4     5    15     9 
+   13     4     5    16     9 
+    2     4    12     7     9 
+    2     4    12    19     9 
+    5     4    12     7     9 
+    5     4    12    19     9 
+   13     4    12     7     9 
+   13     4    12    19     9 
+    4     5     6     7     9 
+    4     5     6    17     9 
+    4     5     6    18     9 
+   15     5     6     7     9 
+   15     5     6    17     9 
+   15     5     6    18     9 
+   16     5     6     7     9 
+   16     5     6    17     9 
+   16     5     6    18     9 
+    5     6     7     8     9 
+    5     6     7    12     9 
+    5     6     7    14     9 
+   17     6     7     8     9 
+   17     6     7    12     9 
+   17     6     7    14     9 
+   18     6     7     8     9 
+   18     6     7    12     9 
+   18     6     7    14     9 
+    6     7     8     9     9 
+    6     7     8    10     9 
+    6     7     8    11     9 
+   12     7     8     9     9 
+   12     7     8    10     9 
+   12     7     8    11     9 
+   14     7     8     9     9 
+   14     7     8    10     9 
+   14     7     8    11     9 
+    6     7    12     4     9 
+    6     7    12    19     9 
+    8     7    12     4     9 
+    8     7    12    19     9 
+   14     7    12     4     9 
+   14     7    12    19     9 
+
+[ dihedrals ]
+;  ai    aj    ak    al funct            c0            c1            c2            c3
+    2     4     1     3     2 
+
+; Include Position restraint file
+#ifdef POSRES
+#include "posre.itp"
+#endif
+
+[ system ]
+; Name
+ZINC000057219042
+
+[ molecules ]
+; Compound        #mols
+Other_chain_A       1
