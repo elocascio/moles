@@ -15,7 +15,7 @@ import asyncio
 import GPUtil
 import platform
 
-_, lig_pattern, receptor, num , nt, pool = argv
+_, lig_pattern, receptor, num , nt, pool, Report_path = argv
 
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
@@ -33,6 +33,10 @@ print(receptor, len(ligList), list(zip(ligList, gpu_ids)))
 system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
 def main(mol2, deviceID):
+
+    if not isfile(mol2):
+        exit()
+    
     filename, ext = splitext(mol2)
     
     try:
@@ -46,7 +50,7 @@ def main(mol2, deviceID):
     system(f'{MATCH} {mol2} {null}')
     if not isfile(f'{filename}.prm'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
-        with open('../Report.csv', 'a') as Report:
+        with open(Report_path, 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
         chdir('../')
@@ -59,7 +63,7 @@ def main(mol2, deviceID):
 # WRITE ITP FILE
     if not isfile(f'{ligand_ff}/ffbonded.itp'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
-        with open('../Report.csv', 'a') as Report:
+        with open(Report_path, 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
         chdir('../')
@@ -144,23 +148,23 @@ EOF""")
     time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)', 'rmsd.png')
     status, contacts_mean = detachmet(contacts)
     result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile, platform.node()]
-    with open('../Report.csv', 'a') as Report:
+    with open(Report_path, 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
-    lines = open('../Report.csv', 'r').readlines()
+    lines = open(Report_path, 'r').readlines()
     if len(lines) % int(num) == 0:
-        df = pd.read_csv('../Report.csv', names= columns_name)
+        df = pd.read_csv(Report_path, names= columns_name)
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
         report = df.to_html()
-        open('../Report.html', 'w').write(report)
+        open(f'{Report_path[:-4]}.html', 'w').write(report)
         send_mail(
                 destination='ettore.locascio@unicatt.it',
                 subject = f"Report of Ligand-PALS1 {len(lines)}/{len(ligList)}",
                 content= f"""This is an auto-generated email from HTMD from {platform.node()}.
                 {len(lines)}/{len(ligList)} Processed!
                 """,
-                attachment = "../Report.html",
+                attachment = f'{Report_path[:-4]}.html',
                 )
     else:
         pass
