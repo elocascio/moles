@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import smtplib
 
-def plot_xvg(xvg, title, xlabel = 'x', ylabel = 'y'):
+def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
     a = []
     b = []
     with open(xvg) as xvg:
@@ -19,7 +19,7 @@ def plot_xvg(xvg, title, xlabel = 'x', ylabel = 'y'):
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.plot(a / 1000, b)
-        plt.savefig('contacts.png', format = 'png', dpi = 600)
+        plt.savefig(filename, format = 'png', dpi = 600)
         plt.close()
     return a, b
 

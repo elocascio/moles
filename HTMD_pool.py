@@ -5,32 +5,34 @@ import glob
 from var import *
 from shutil import copyfile
 from make_mdp import make_mdp
-from time import sleep
 import numpy as np 
 import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, detachmet
 import pandas as pd
-import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 from multiprocessing import Pool
 import asyncio
 import GPUtil
 
+
 _, lig_pattern, receptor, num , nt = argv
+
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
 
-loop = 1
-status_list = []
-mean = []
-smiles = []
-rmsd_list = []
+gpu_ids = []
+
+for i in range(len(ligList)):
+    if i % 2 == 0:
+        gpu_ids.append(1)
+    else:
+        gpu_ids.append(0)
 
 print(receptor, len(ligList))
 
 system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
-def main(mol2):
+def main(mol2, deviceID):
     filename, ext = splitext(mol2)
     
     try:
@@ -45,9 +47,8 @@ def main(mol2):
     if not isfile(f'{filename}.prm'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open('Report.csv', 'a') as Report:
-            Report.write(','.join(result)) 
+            Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
-        sleep(1)
         chdir('../')
         exit()
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
@@ -59,9 +60,8 @@ def main(mol2):
     if not isfile(f'{ligand_ff}/ffbonded.itp'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open('Report.csv', 'a') as Report:
-            Report.write(','.join(result)) 
+            Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
-        sleep(1)
         chdir('../')
         exit()
     with open(f'{ligand_ff}/ffbonded.itp') as ffbonded, open(f'{ligand_ff}/ffnonbonded.itp') as ffnonbonded, open(f'Ligand.top') as ligand_top, open(f'{filename}.itp', 'w') as ligand_itp:
@@ -101,14 +101,14 @@ def main(mol2):
             if line.startswith('ATOM') or line.startswith('HETATM'):
                 Complex.write(line)
     
-    system(f'{gmx} editconf -f {Complex.name} -o {Complex.name} -d 1.0 {null}')
-    system(f'{gmx} solvate -cp {Complex.name} -o {Complex.name} -p topol.top {null}')
+    system(f'{gmx} editconf -f {Complex.name} -o {Complex.name} -d 1.0 -quiet')
+    system(f'{gmx} solvate -cp {Complex.name} -o {Complex.name} -p topol.top -quiet')
 
     ions_mdp = make_mdp('ions')
-    system(f'{gmx} grompp -f {ions_mdp} -c {Complex.name} -p topol.top -o Complex_b4ion.tpr -maxwarn 10 {null}')
-    system(f'echo 15 | {gmx} genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top {null}')
+    system(f'{gmx} grompp -f {ions_mdp} -c {Complex.name} -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet {null}')
+    system(f'echo 15 | {gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet {null}')
 
-    system(f"""{gmx} make_ndx -f Complex_4mini.pdb -o index.ndx << EOF
+    system(f"""{gmx} -quiet make_ndx -f Complex_4mini.pdb -o index.ndx << EOF
 1 | 20
 q
 EOF""")
@@ -116,18 +116,18 @@ EOF""")
 #    system(f'echo "Protein_UNK" | {gmx} genrestr -f Complex_4mini.pdb -n index.ndx')
 #    if os.path.isfile('')
     mini_mdp = make_mdp(mdp = 'mini')
-    system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10 {null}')
-    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
+    system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10 -quiet')
+#    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
     system(f'{mdrun} -deffnm mini -nt {nt} -gpu_id {deviceID[0]} {null}')
     
     equi_mdp = make_mdp(mdp = 'equi')
     system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
-    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
+#    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
     system(f'{mdrun} -deffnm equi -nt {nt} -gpu_id {deviceID[0]}')
 
     MD_mdp = make_mdp(mdp = 'MD')
     system(f'{gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10 {null}')
-    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
+#    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
     system(f'{mdrun} -v -deffnm MD -nt {nt} -gpu_id {deviceID[0]}')
 
     system(f'{gmx} editconf -f MD.tpr -o MD.pdb {null}')
@@ -140,20 +140,16 @@ EOF""")
     13
     EOF""")
 
-    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats')
-    time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)')
+    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats', 'contacts.png')
+    time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)', 'rmsd.png')
     status, contacts_mean = detachmet(contacts)
     result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile]
-    with open('Report.csv') as Report:
-        Report.write(','.join(result))
-
-async def waiter(a):
-    await main(a)
-    return 1
+    with open('Report.csv', 'a') as Report:
+        Report.write(','.join(map(str, result)) + '\n')
 
 if __name__=='__main__':
     p = Pool(2)
-    p.map(main, ligList)
+    p.starmap_async(main, list(zip(ligList, gpu_ids))).get()
 #    if loop % int(num) == 0 or loop == len(ligList):
 #        df = pd.DataFrame({
 #            'ligand': ligList[:loop],
