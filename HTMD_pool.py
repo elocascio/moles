@@ -147,7 +147,7 @@ EOF""")
     with open('../Report.csv', 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
     lines = open('../Report.csv', 'r').readlines()
-    if lines % int(num) == 0:
+    if len(lines) % int(num) == 0:
         df = pd.read_csv('../Report.csv', names= columns_name)
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
