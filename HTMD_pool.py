@@ -46,7 +46,7 @@ def main(mol2, deviceID):
     system(f'{MATCH} {mol2} {null}')
     if not isfile(f'{filename}.prm'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR']
-        with open('Report.csv', 'a') as Report:
+        with open('../Report.csv', 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
         chdir('../')
@@ -59,7 +59,7 @@ def main(mol2, deviceID):
 # WRITE ITP FILE
     if not isfile(f'{ligand_ff}/ffbonded.itp'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR']
-        with open('Report.csv', 'a') as Report:
+        with open('../Report.csv', 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
         chdir('../')
@@ -144,7 +144,7 @@ EOF""")
     time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)', 'rmsd.png')
     status, contacts_mean = detachmet(contacts)
     result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile]
-    with open('Report.csv', 'a') as Report:
+    with open('../Report.csv', 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
 
 if __name__=='__main__':
