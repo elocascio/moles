@@ -28,7 +28,7 @@ for i in range(len(ligList)):
     else:
         gpu_ids.append(1)
 
-print(receptor, len(ligList))
+print(receptor, len(ligList), list(zip(ligList, gpu_ids)))
 
 system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
