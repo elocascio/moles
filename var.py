@@ -6,4 +6,4 @@ charmm2gmx = '$HOME/htmd/charmm2gromacs-pvm3.py'
 mdrun = 'mdrun_tmpi'
 name = 'MG-REX'
 null = '2> /dev/null'
-columns_name = ['ligand', 'status', 'contacts_avarage', 'RMSD (Å)', 'smiles','made by']
+columns_name = ['ligand', 'status', 'contacts_average', 'RMSD (Å)', 'smiles','made by']
