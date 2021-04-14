@@ -118,7 +118,7 @@ EOF""")
     mini_mdp = make_mdp(mdp = 'mini')
     system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10 -quiet')
 #    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
-    system(f'{mdrun} -deffnm mini -nt {nt} -gpu_id {deviceID[0]} {null}')
+    system(f'{mdrun} -deffnm mini -nt {nt} -gpu_id {deviceID[0]}')
     
     equi_mdp = make_mdp(mdp = 'equi')
     system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
