@@ -13,7 +13,7 @@ from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 from multiprocessing import Pool
 import asyncio
 import GPUtil
-
+import platform
 
 _, lig_pattern, receptor, num , nt, pool = argv
 
@@ -45,7 +45,7 @@ def main(mol2, deviceID):
     chdir(filename)
     system(f'{MATCH} {mol2} {null}')
     if not isfile(f'{filename}.prm'):
-        result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR']
+        result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open('../Report.csv', 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
@@ -58,7 +58,7 @@ def main(mol2, deviceID):
 
 # WRITE ITP FILE
     if not isfile(f'{ligand_ff}/ffbonded.itp'):
-        result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR']
+        result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open('../Report.csv', 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
         print('ERROR')
@@ -146,11 +146,32 @@ EOF""")
     result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile]
     with open('../Report.csv', 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
+        lines = Report.readlines()
+    if lines % int(num) == 0:
+        df = pd.read_csv('../Report.csv', names= columns_name)
+        df = df[df['status'] != 'ERROR']
+        df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
+        PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
+        report = df.to_html()
+        open('../Report.html', 'w').write(report)
+        send_mail(
+                destination='ettore.locascio@unicatt.it',
+                subject = f"Report of Ligand-PALS1 {Report.readlines}/{len(ligList)}",
+                content= f"""This is an auto-generated email from HTMD from {platform.node()}.
+                {Report.readlines}/{len(ligList)} Processed!
+                """,
+                attachment = "../Report.html",
+                )
+    else:
+        pass
+
     exit()
 
 if __name__=='__main__':
     p = Pool(int(pool))
     p.starmap_async(main, list(zip(ligList, gpu_ids))).get()
+
+
 #    if loop % int(num) == 0 or loop == len(ligList):
 #        df = pd.DataFrame({
 #            'ligand': ligList[:loop],

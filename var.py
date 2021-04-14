@@ -3,7 +3,7 @@
 gmx = 'gmx'
 MATCH = '$HOME/htmd/MATCH_RELEASE/MATCH/scripts/MATCH.pl'
 charmm2gmx = '$HOME/htmd/charmm2gromacs-pvm3.py'
-mdrun = 'gmx mdrun'
+mdrun = 'mdrun_tmpi'
 name = 'MG-REX'
-real_name = 'hpc07'
 null = '2> /dev/null'
+columns_name = ['ligand', 'status', 'contacts_avarage', 'RMSD (Å)', 'smiles','made by']
