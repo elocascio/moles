@@ -143,7 +143,7 @@ EOF""")
     time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats', 'contacts.png')
     time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)', 'rmsd.png')
     status, contacts_mean = detachmet(contacts)
-    result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile]
+    result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile, platform.node()]
     with open('../Report.csv', 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
         lines = Report.readlines()

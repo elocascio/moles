@@ -34,14 +34,6 @@ def detachmet(contacts):
     
     return status, contacts_mean
 
-#def send_mail(destination, content):
-#    mail = smtplib.SMTP('smtp.gmail.com', 587)
-#    mail.ehlo()
-#    mail.starttls()
-#    mail.login('dinamica.molecolare@gmail.com', 'AutoNotif1!')
-#    mail.sendmail('dinamica.molecolare@gmail.com', destination, content)
-#    mail.close()
-#    print('send')
 
 import yagmail
 
