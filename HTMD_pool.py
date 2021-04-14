@@ -25,6 +25,8 @@ gpu_ids = []
 for i in range(len(ligList)):
     if i % 2 == 0:
         gpu_ids.append(1)
+    elif i == 0:
+        gpu_ids.append(0)
     else:
         gpu_ids.append(0)
 
