@@ -15,7 +15,7 @@ import asyncio
 import GPUtil
 
 
-_, lig_pattern, receptor, num , nt = argv
+_, lig_pattern, receptor, num , nt, pool = argv
 
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
@@ -148,7 +148,7 @@ EOF""")
         Report.write(','.join(map(str, result)) + '\n')
 
 if __name__=='__main__':
-    p = Pool(2)
+    p = Pool(pool)
     p.starmap_async(main, list(zip(ligList, gpu_ids))).get()
 #    if loop % int(num) == 0 or loop == len(ligList):
 #        df = pd.DataFrame({
