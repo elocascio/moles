@@ -156,9 +156,9 @@ EOF""")
         open('../Report.html', 'w').write(report)
         send_mail(
                 destination='ettore.locascio@unicatt.it',
-                subject = f"Report of Ligand-PALS1 {Report.readlines}/{len(ligList)}",
+                subject = f"Report of Ligand-PALS1 {len(lines)}/{len(ligList)}",
                 content= f"""This is an auto-generated email from HTMD from {platform.node()}.
-                {Report.readlines}/{len(ligList)} Processed!
+                {len(lines)}/{len(ligList)} Processed!
                 """,
                 attachment = "../Report.html",
                 )
@@ -169,7 +169,7 @@ EOF""")
 
 if __name__=='__main__':
     p = Pool(int(pool))
-    p.starmap_async(main, list(zip(ligList, gpu_ids))).get()
+    p.starmap_async(main, list(zip(ligList, gpu_ids)), chunksize=1).get()
 
 
 #    if loop % int(num) == 0 or loop == len(ligList):
