@@ -146,7 +146,7 @@ EOF""")
     result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile, platform.node()]
     with open('../Report.csv', 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
-        lines = Report.readlines()
+    lines = open('../Report.csv', 'r').readlines()
     if lines % int(num) == 0:
         df = pd.read_csv('../Report.csv', names= columns_name)
         df = df[df['status'] != 'ERROR']
