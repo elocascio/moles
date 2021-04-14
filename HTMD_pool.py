@@ -148,7 +148,7 @@ EOF""")
         Report.write(','.join(map(str, result)) + '\n')
 
 if __name__=='__main__':
-    p = Pool(pool)
+    p = Pool(int(pool))
     p.starmap_async(main, list(zip(ligList, gpu_ids))).get()
 #    if loop % int(num) == 0 or loop == len(ligList):
 #        df = pd.DataFrame({
