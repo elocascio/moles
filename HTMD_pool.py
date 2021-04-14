@@ -146,6 +146,7 @@ EOF""")
     result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile]
     with open('../Report.csv', 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
+    exit()
 
 if __name__=='__main__':
     p = Pool(int(pool))
