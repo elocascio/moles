@@ -133,8 +133,8 @@ EOF""")
     13
     EOF""")
 
-    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats', 'contacts.png')
-    time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)', 'rmsd.png')
+    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
+    time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(contacts)
     result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile, platform.node()]
     with open(Report_path, 'a') as Report:
@@ -162,7 +162,7 @@ EOF""")
 
 if __name__=='__main__':
     p = Pool(int(pool))
-    p.starmap_async(main, ligList, chunksize=1).get()
+    p.map_async(main, ligList, chunksize=1).get()
 
 
 #    if loop % int(num) == 0 or loop == len(ligList):
