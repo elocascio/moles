@@ -58,3 +58,5 @@ def gpu_manager():
             return 0
         else:
             return np.random.randint(2)
+    else:
+        return np.random.randint(2)
