@@ -1,6 +1,5 @@
 import numpy as np 
 import matplotlib.pyplot as plt
-import smtplib
 
 def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
     a = []
@@ -24,13 +23,11 @@ def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
     return a, b
 
 def detachmet(contacts):
-    contact0 = contacts[0]
     contacts_mean = np.mean(contacts)
-    for contact in contacts:
-        if contact / contact0 < 0.40:
-            status = 'detachment'
-            break
-        else: status = 'attached'
+    if (np.count_nonzero(contacts < 150) / contacts.shape[0]) < 0.40:
+        status = 'poor ligand'
+        pass
+    else: status = 'attached'
     
     return status, contacts_mean
 
@@ -48,9 +45,7 @@ def send_mail(destination, subject, content, attachment):
     print('email sent')
 
 import nvsmi
-import numpy as np
 def gpu_manager():
-    NGPUS = 2
     ids = []
     for process in nvsmi.get_gpu_processes():
         gpu_id = int(str(process).split('gpu_id: ')[-1].split(' | ')[0])
