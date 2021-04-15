@@ -46,3 +46,20 @@ def send_mail(destination, subject, content, attachment):
         attachments = attachment,
     )
     print('email sent')
+
+import nvsmi
+import numpy as np
+def gpu_manager():
+    NGPUS = 2
+    ids = []
+    for process in nvsmi.get_gpu_processes():
+        gpu_id = int(str(process).split('gpu_id: ')[-1].split(' | ')[0])
+        ids.append(gpu_id)
+    print(ids, ids.count(1), ids.count(0))
+    if len(ids) > 0:
+        if ids.count(0) / ids.count(1) > 1 or ids.count(1) == 0:
+            return 1
+        elif ids.count(0) / ids.count(1) < 1 or ids.count(0) == 0:
+            return 0
+        else:
+            return np.random.randint(2)

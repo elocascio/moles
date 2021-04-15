@@ -7,12 +7,10 @@ from shutil import copyfile
 from make_mdp import make_mdp
 import numpy as np 
 import matplotlib.pyplot as plt
-from utils import plot_xvg, send_mail, detachmet
+from utils import plot_xvg, send_mail, detachmet, gpu_manager
 import pandas as pd
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 from multiprocessing import Pool
-import asyncio
-import GPUtil
 import platform
 
 _, lig_pattern, receptor, num , nt, pool, Report_path = argv
@@ -20,19 +18,11 @@ _, lig_pattern, receptor, num , nt, pool, Report_path = argv
 
 ligList = glob.glob(f'{lig_pattern}*.mol2')
 
-gpu_ids = []
-
-for i in range(len(ligList)):
-    if i % 2 == 0:
-        gpu_ids.append(0)
-    else:
-        gpu_ids.append(1)
-
-print(receptor, len(ligList), list(zip(ligList, gpu_ids)))
+print(receptor, len(ligList))
 
 system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
-def main(mol2, deviceID):
+def main(mol2):
 
     if not isfile(mol2):
         exit()
@@ -43,7 +33,7 @@ def main(mol2, deviceID):
         smile = MolToSmiles(MolFromMol2File(mol2))
     except:
         smile = 'C'
-    ligpdb = filename + '.pdb'
+
     makedirs(filename,  exist_ok=True)
     rename(mol2, f'{filename}/{mol2}')
     chdir(filename)
@@ -52,9 +42,8 @@ def main(mol2, deviceID):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open(Report_path, 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
-        print('ERROR')
-        chdir('../')
-        exit()
+        return print('ERROR')
+        
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
     ligand_ff = f'{filename}.ff'
     system(f'obabel -imol2 {mol2} -opdb -O {filename}.pdb {null}')
@@ -65,9 +54,7 @@ def main(mol2, deviceID):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open(Report_path, 'a') as Report:
             Report.write(','.join(map(str, result)) + '\n')
-        print('ERROR')
-        chdir('../')
-        exit()
+        return print('ERROR')
     with open(f'{ligand_ff}/ffbonded.itp') as ffbonded, open(f'{ligand_ff}/ffnonbonded.itp') as ffnonbonded, open(f'Ligand.top') as ligand_top, open(f'{filename}.itp', 'w') as ligand_itp:
         ffnonbonded_lines = ffnonbonded.readlines()
         ffbonded_lines = ffbonded.readlines()
@@ -116,24 +103,26 @@ def main(mol2, deviceID):
 1 | 20
 q
 EOF""")
-    
-#    system(f'echo "Protein_UNK" | {gmx} genrestr -f Complex_4mini.pdb -n index.ndx')
-#    if os.path.isfile('')
+
+#------------ MINIMIZATION
+    deviceID = gpu_manager()
     mini_mdp = make_mdp(mdp = 'mini')
     system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
-#    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
     system(f'{mdrun} -deffnm mini -nt {nt} -gpu_id {deviceID}')
-    
+
+#------------- EQUILIBRATION
     equi_mdp = make_mdp(mdp = 'equi')
     system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
-#    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
+    deviceID = gpu_manager()
     system(f'{mdrun} -deffnm equi -nt {nt} -gpu_id {deviceID}')
 
+#------------- MD
     MD_mdp = make_mdp(mdp = 'MD')
     system(f'{gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10 {null}')
-#    deviceID = GPUtil.getAvailable(order = 'first', limit = 1, maxLoad = 0.5, maxMemory = 0.5, includeNan=False, excludeID=[], excludeUUID=[])
+    deviceID = gpu_manager()
     system(f'{mdrun} -v -deffnm MD -nt {nt} -gpu_id {deviceID}')
 
+#------------- ANALISYS
     system(f'{gmx} editconf -f MD.tpr -o MD.pdb {null}')
     system(f"""{gmx} mindist -f MD.xtc -s MD.tpr -d 0.45 -n index.ndx -on contacts.xvg << EOF
     Protein
@@ -169,11 +158,11 @@ EOF""")
     else:
         pass
 
-    exit()
+    return print('COMPLETE!')
 
 if __name__=='__main__':
     p = Pool(int(pool))
-    p.starmap_async(main, list(zip(ligList, gpu_ids)), chunksize=1).get()
+    p.starmap_async(main, ligList, chunksize=1).get()
 
 
 #    if loop % int(num) == 0 or loop == len(ligList):
