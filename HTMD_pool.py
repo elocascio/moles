@@ -25,7 +25,7 @@ system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water ti
 def main(mol2):
 
     if not isfile(mol2):
-        exit()
+        return print('ERROR')
     
     filename, ext = splitext(mol2)
     
@@ -163,40 +163,4 @@ EOF""")
 if __name__=='__main__':
     p = Pool(int(pool))
     p.map_async(main, ligList, chunksize=1).get()
-
-
-#    if loop % int(num) == 0 or loop == len(ligList):
-#        df = pd.DataFrame({
-#            'ligand': ligList[:loop],
-#            'status': status_list,
-#            'contacts_average': mean,
-#            'RMSD (Å)' : rmsd_list,
-#            'smiles' : smiles})
-#        df = df[df['status'] != 'ERROR']
-#        df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
-#        body = f"""
-#    This is an auto-generated email. Do not respond to this email address.
-#    
-#    This is {name} (aka {real_name}), reporting:
-#
-#    HTMD
-#    Ligand processed : {loop}/{len(ligList)}
-#    Attached : {status_list.count('attached')}
-#    Detached : {status_list.count('detachment')}"""
-#
-#        PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-#        report = df.to_html()
-#        with open('../Report.html', 'w') as html:
-#            html.write(report)
-#
-#        send_mail(
-#            destination='ettore.locascio@unicatt.it',
-#            subject = f"Report of Ligand-PALS1 {loop}/{len(ligList)}",
-#            content= body,
-#            attachment = "../Report.html",
-#            )
-#        
-#        df.to_pickle("../Report")
-#    else: pass
-#    loop += 1
-#    chdir('../')
+    p.close()
