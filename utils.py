@@ -65,6 +65,8 @@ def gpu_manager():
 
 import MDAnalysis
 from MDAnalysis.analysis import contacts
+from io import BytesIO
+import base64
 
 def switch_function(r, r0, r_0 = 6, a = 6, b = 12):
     r = np.asarray(r)
@@ -105,3 +107,15 @@ def coordination():
     df_P = df.groupby(df_P['residue']).aggregate(aggregation_functions)
     df_all = pd.concat([df_C, df_P], axis = 1)
     df_all = df_all.fillna(0) ; df_all = df_all[(df_all.T != 0).any()]
+
+    fig, ax = plt.subplots()
+    ax.bar(df_all.index, df_all.coord_C)
+    ax.bar(df_all.index, df_all.coord_P)
+
+    figfile = BytesIO()
+    fig.savefig(figfile, format='png')
+    figfile.seek(0)
+    figdata_png = base64.b64encode(figfile.getvalue()).decode()
+    coord_plot = f'<img src="data:image/png;base64,{figdata_png}" /> '
+
+    return coord_plot
