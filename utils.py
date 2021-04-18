@@ -74,6 +74,12 @@ def switch_function(r, r0, r_0 = 6, a = 6, b = 12):
 
 def coordination():
     u = MDAnalysis.Universe('MD.tpr', 'MD.xtc')
+    u_pdb = MDAnalysis.Universe('MD.pdb')
+    pdb = []
+    for res in u_pdb.segments[0].residues: pdb.append(str(res.resnum) + str(res.resname))
+    tpr = []
+    for res in u.segments[0].residues: tpr.append(str(res.resnum) + str(res.resname))
+    Rosetta = dict(zip(tpr,pdb)) # Rosetta['72PHE'] -> 318PHE
     # Hydrophobic
     H = []
     c_lig = "(segid seg_1*) and (type C*)"
