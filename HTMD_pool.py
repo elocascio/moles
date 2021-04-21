@@ -3,6 +3,7 @@ from os.path import splitext, isfile
 from sys import argv
 import glob
 from var import *
+from contacts import contacts
 from shutil import copyfile
 from make_mdp import make_mdp
 import numpy as np 
@@ -136,7 +137,9 @@ EOF""")
     time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
     time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(contacts)
-    result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile, platform.node()]
+    fig = contacts(mol2 = mol2)
+    imgstr = fig2html(fig)
+    result = [filename, smiles, status, contacts_mean, np.mean(rmsd) * 10, imgstr, platform.node()]
     with open(Report_path, 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
     lines = open(Report_path, 'r').readlines()
@@ -145,7 +148,7 @@ EOF""")
         df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-        report = df.to_html()
+        report = df.to_html(f'{Report_path[:-4]}.html', escape = False)
         open(f'{Report_path[:-4]}.html', 'w').write(report)
         send_mail(
                 destination='ettore.locascio@unicatt.it',
