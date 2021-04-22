@@ -164,7 +164,7 @@ EOF""")
         body = f"""
     This is an auto-generated email. Do not respond to this email address.
     
-    This is {name} (aka {real_name}), reporting:
+    This is {name}, reporting:
 
     HTMD
     Ligand processed : {loop}/{len(ligList)}

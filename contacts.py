@@ -27,9 +27,9 @@ def contacts(tpr = 'MD.tpr', xtc = 'MD.xtc', pdb = 'MD.pdb', mol2)
     Rosetta = dict(zip(tpr,pdb)) # Rosetta['72PHE'] -> 318PHE
 #------------------------------- Hydrophobic ----------------------------------
     H = []
-    c_lig = "(segid seg_1*) and (type C*)"
+    c_lig = "(resname UNK) and (type C*)"
     lig_c = u.select_atoms(c_lig)
-    prot_c = u.select_atoms("(around 10 segid seg_1*) and (name C*)")
+    prot_c = u.select_atoms("(around 10 resname UNK) and (name C*)")
     for at in prot_c:
         resid = at.resid
         name = at.name
