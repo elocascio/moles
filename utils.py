@@ -14,13 +14,14 @@ def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
                 b.append(float(x[1]))
         a = np.array(a)
         b = np.array(b)
-        plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.plot(a / 1000, b)
-        plt.savefig(filename, format = 'png', dpi = 600)
+        fig, ax = plt.subplots()
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.plot(a / 1000, b)
+        fig.savefig(filename, format = 'png', dpi = 600)
         plt.close()
-    return a, b, plt.figure
+    return a, b, fig
 
 def detachmet(contacts):
     contacts_mean = np.mean(contacts)
@@ -47,7 +48,7 @@ def send_mail(destination, subject, content, attachment):
 import nvsmi
 def gpu_manager():
     ids = []
-    for process in nvsm i.get_gpu_processes():
+    for process in nvsmi.get_gpu_processes():
         gpu_id = int(str(process).split('gpu_id: ')[-1].split(' | ')[0])
         ids.append(gpu_id)
     print(ids, ids.count(1), ids.count(0))
@@ -62,12 +63,6 @@ def gpu_manager():
             return np.random.randint(2)
     else:
         return np.random.randint(2)
-
-
-
-def switch_function(r, r0, r_0 = 6, a = 6, b = 12):
-    r = np.asarray(r)
-    return np.sum((1-(r/r_0)**a)/(1-(r/r_0)**b))
 
 from io import BytesIO
 import base64

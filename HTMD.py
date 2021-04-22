@@ -8,7 +8,7 @@ from make_mdp import make_mdp
 from time import sleep
 import numpy as np 
 import matplotlib.pyplot as plt
-from utils import plot_xvg, send_mail, detachmet
+from utils import plot_xvg, send_mail, detachmet, fig2html
 import pandas as pd
 import pickle as pkl
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
