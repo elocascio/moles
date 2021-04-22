@@ -20,7 +20,7 @@ def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
         plt.plot(a / 1000, b)
         plt.savefig(filename, format = 'png', dpi = 600)
         plt.close()
-    return a, b
+    return a, b, plt.figure
 
 def detachmet(contacts):
     contacts_mean = np.mean(contacts)

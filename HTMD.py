@@ -139,8 +139,8 @@ EOF""")
     13
     EOF""")
 
-    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats')
-    time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)')
+    time, contacts, contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats')
+    time, rmsd, rmsd_fig = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(contacts)
     status_list.append(status)
     mean.append(contacts_mean)
