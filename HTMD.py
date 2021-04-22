@@ -23,6 +23,7 @@ status_list = []
 mean = []
 smiles = []
 rmsd_list = []
+imgstr_list = []
 
 print(receptor, len(ligList))
 
@@ -141,11 +142,13 @@ EOF""")
 
     time, contacts, contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats')
     time, rmsd, rmsd_fig = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)')
+    imgstr = fig2html(contacts_fig)
     status, contacts_mean = detachmet(contacts)
     status_list.append(status)
     mean.append(contacts_mean)
     rmsd_list.append(np.mean(rmsd) * 10)
     smiles.append(smile)
+    imgstr_list.append(imgstr)
 
     pkl.dump(ligList, open('../ligList', 'wb'))
     pkl.dump(status_list, open('../status', 'wb'))
@@ -157,6 +160,7 @@ EOF""")
             'ligand': ligList[:loop],
             'status': status_list,
             'contacts_average': mean,
+            'image': imgstr_list,
             'RMSD (Å)' : rmsd_list,
             'smiles' : smiles})
         df = df[df['status'] != 'ERROR']
@@ -172,7 +176,7 @@ EOF""")
     Detached : {status_list.count('detachment')}"""
 
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-        report = df.to_html()
+        report = df.to_html(escape = False)
         with open('../Report.html', 'w') as html:
             html.write(report)
 

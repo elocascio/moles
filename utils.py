@@ -47,7 +47,7 @@ def send_mail(destination, subject, content, attachment):
 import nvsmi
 def gpu_manager():
     ids = []
-    for process in nvsmi.get_gpu_processes():
+    for process in nvsm i.get_gpu_processes():
         gpu_id = int(str(process).split('gpu_id: ')[-1].split(' | ')[0])
         ids.append(gpu_id)
     print(ids, ids.count(1), ids.count(0))
