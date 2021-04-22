@@ -72,6 +72,6 @@ def fig2html(fig):
     figfile = BytesIO()
     fig.savefig(figfile, format = 'png', bbox_inches = 'tight')
     figfile.seek(0)
-    figdata_png = base64.b64decode(figfile.getvalue()).decode()
+    figdata_png = base64.b64encode(figfile.getvalue()).decode()
     imgstr = f'<img src="data:image/png;base64,{figdata_png}" />'
     return imgstr
