@@ -140,7 +140,7 @@ EOF""")
     13
     EOF""")
 
-    time, contacts, contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts' ,'Time', 'Concats')
+    time, contacts, contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts', 'contacts.png' ,'Time', 'Concats')
     time, rmsd, rmsd_fig = plot_xvg('rmsd.xvg', 'RMSD', 'Time', 'RMSD (A)')
     imgstr = fig2html(contacts_fig)
     status, contacts_mean = detachmet(contacts)

@@ -75,3 +75,8 @@ def fig2html(fig):
     figdata_png = base64.b64encode(figfile.getvalue()).decode()
     imgstr = f'<img src="data:image/png;base64,{figdata_png}" />'
     return imgstr
+
+def encode(png):
+    with open(png, 'rb') as img:
+        string = base64.b64encode(img.read()).decode()
+        return '<img src="data:image/png;base64, {}" />'.format(string)
