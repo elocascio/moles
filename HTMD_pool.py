@@ -4,6 +4,7 @@ from sys import argv
 import glob
 from var import *
 from contacts import contacts
+import plip_contacts
 from shutil import copyfile
 from make_mdp import make_mdp
 import numpy as np 
@@ -134,19 +135,17 @@ EOF""")
     13
     EOF""")
 
-    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
+    time, contacts, all_contact_fig = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats'); imgstr_allcontact = fig2html(all_contact_fig)
     time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
-    status, contacts_mean = detachmet(contacts)
-    fig = contacts(mol2 = mol2)
-    imgstr = fig2html(fig)
-    result = [filename, smiles, status, contacts_mean, np.mean(rmsd) * 10, imgstr, platform.node()]
+    fig = plip_contacts.contacts(step=2); imgstr = fig2html(fig)
+    result = [filename, smiles, contacts_mean, np.mean(rmsd) * 10, imgstr_allcontact, imgstr, platform.node()]
     with open(Report_path, 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
     lines = open(Report_path, 'r').readlines()
     if len(lines) % int(num) == 0:
         df = pd.read_csv(Report_path, names= columns_name)
         df = df[df['status'] != 'ERROR']
-        df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
+        df = df.sort_values(by=['contacts_average'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
         report = df.to_html(f'{Report_path[:-4]}.html', escape = False)
         open(f'{Report_path[:-4]}.html', 'w').write(report)
