@@ -9,7 +9,7 @@ from shutil import copyfile
 from make_mdp import make_mdp
 import numpy as np 
 import matplotlib.pyplot as plt
-from utils import plot_xvg, send_mail, detachmet, gpu_manager
+from utils import plot_xvg, send_mail, detachmet, gpu_manager, fig2html
 import pandas as pd
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 from multiprocessing import Pool
@@ -27,7 +27,7 @@ system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water ti
 def main(mol2):
 
     if not isfile(mol2):
-        return print('ERROR')
+        return print('ERROR no mol2')
     
     filename, ext = splitext(mol2)
     
@@ -137,7 +137,7 @@ EOF""")
 
     time, contacts, all_contact_fig = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats'); imgstr_allcontact = fig2html(all_contact_fig)
     time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
-    fig = plip_contacts.contacts(step=2); imgstr = fig2html(fig)
+    fig = plip_contacts.contacts(step=10); imgstr = fig2html(fig)
     result = [filename, smiles, contacts_mean, np.mean(rmsd) * 10, imgstr_allcontact, imgstr, platform.node()]
     with open(Report_path, 'a') as Report:
         Report.write(','.join(map(str, result)) + '\n')
@@ -165,4 +165,3 @@ EOF""")
 if __name__=='__main__':
     p = Pool(int(pool))
     p.map_async(main, ligList, chunksize=1).get()
-    p.close()
