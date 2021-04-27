@@ -3,7 +3,7 @@ from os.path import splitext, isfile
 from sys import argv
 import glob
 from var import *
-from contacts import contacts
+#from contacts import contacts
 import plip_contacts
 from shutil import copyfile
 from make_mdp import make_mdp
