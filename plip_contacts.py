@@ -2,12 +2,13 @@ import MDAnalysis
 from plip.structure.preparation import PDBComplex
 import pandas as pd
 import matplotlib.pyplot as plt
+from var import colors
 
 def switch(r, r_0=6,a=6,b=12):
     return (1-(r/r_0)**a)/(1-(r/r_0)**b)
 
 
-def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 1):
+def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
     Hydrophobic = []
     PiStacking_T = []
     PiStacking_P = []
@@ -24,7 +25,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 1):
     complexo = complexo + water
     unk = u.select_atoms('resname UNK'); unk = unk.resids[0]
     for ts in u.trajectory:
-        if ts.time / step == 0:
+        if ts.time % step == 0:
             complexo.write('trajj.pdb')
             mol = PDBComplex()
             mol.load_pdb('trajj.pdb')
@@ -64,28 +65,29 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 1):
     for coord, coord_type in list(zip([Hydrophobic, PiStacking_T, PiStacking_P, SaltBridge, HBond, PiCation, WaterBridge], ['Hydrophobic', 'Pi_stacking_T', 'Pi_stacking_P', 'Salt_Bridge', 'H_bond', 'Pi_Cation', 'Water_Bridge'])):
         
         if coord in [HBond, WaterBridge]:
-            print('elborating:', coord_type, 'dentro if')
             df = pd.DataFrame(coord, columns=['residue', coord_type])
             aggregation = {coord_type: 'count'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / len(u.trajectory))
+            df[coord_type] = df[coord_type].apply(lambda x: x / (len(u.trajectory) / step))
             coord_dfs.append(df)
         else: 
-            print('elborating:', coord_type, 'dentro else')
             df = pd.DataFrame(coord, columns = ['residue', coord_type])
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
-            df[coord_type] = df[coord_type].apply(lambda x: x / len(u.trajectory))
+            df[coord_type] = df[coord_type].apply(lambda x: x / (len(u.trajectory) / step))
             coord_dfs.append(df)
     
     df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0).any()]
     df_all = df_all.sort_values(by=['residue'])
+    
     plt.legend(bbox_to_anchor=(1.01, 1), loc='best')
-    (df_all.plot.bar(stacked = True).figure).savefig('contacts.png', format = 'png', bbox_inches = 'tight')
+    ax = df_all.plot.bar(stacked = True, color = colors)
+    ax.set_ylabel('ylabel')
+    (ax.figure).savefig('contacts.png', format = 'png', bbox_inches = 'tight')
 
     
-    return df_all.plot.bar(stacked = True).figure
+    return ax.figure
 
 if __name__=='__main__':
    contacts()

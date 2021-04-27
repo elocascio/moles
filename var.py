@@ -7,3 +7,4 @@ mdrun = 'mdrun_tmpi'
 name = 'MG-REX'
 null = '2> /dev/null'
 columns_name = ['ligand','smiles', 'contacts_average', 'RMSD (Å)', 'all_contacts', 'coordination_plot','made by']
+colors = {'Hydrophobic': 'purple', 'Pi_stacking_T': 'black', 'Pi_stacking_P': 'coral', 'Salt_Bridge': 'mediumblue', 'H_bond':'aqua', 'Pi_Cation':'firebrick', 'Water_Bridge':'gold'}
