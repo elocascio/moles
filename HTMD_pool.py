@@ -146,7 +146,7 @@ EOF""")
         df = pd.read_table(Report_path, names = columns_name)
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-        df.to_html(f'{Report_path[:-4]}.html', escape = False)
+        df.to_html(f'{Report_path[:-4]}.html')
 
         send_mail(
                 destination='ettore.locascio@unicatt.it',
