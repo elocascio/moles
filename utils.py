@@ -23,6 +23,7 @@ def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
         plt.savefig(filename, format = 'png', dpi = 600)        
         figfile = BytesIO()
         plt.savefig(figfile, format='png')
+        plt.close()
         figfile.seek(0)
         figdata_png = base64.b64encode(figfile.getvalue()).decode()
         plot_string = f'<img src="data:image/png;base64,{figdata_png}" /> '

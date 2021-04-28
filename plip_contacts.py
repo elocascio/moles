@@ -96,7 +96,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
     figfile.seek(0)
     figdata_png = base64.b64encode(figfile.getvalue()).decode()
     string = f'<img src="data:image/png;base64,{figdata_png}" /> '
-    
+    plt.close()
     return string
 
 if __name__=='__main__':
