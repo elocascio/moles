@@ -143,7 +143,7 @@ EOF""")
     lines = open(Report_path, 'r').readlines()
 
     if len(lines) % int(num) == 0:
-        df = pd.read_csv(Report_path, names= columns_name)
+        df = pd.read_table(Report_path, names = columns_name)
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
         df.to_html(f'{Report_path[:-4]}.html', escape = False)
