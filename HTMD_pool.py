@@ -143,10 +143,11 @@ EOF""")
     lines = open(Report_path, 'r').readlines()
 
     if len(lines) % int(num) == 0:
-        df = pd.read_table(Report_path, names = columns_name)
+        df = pd.read_csv(Report_path, names= columns_name)
+        df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-        df.to_html(f'{Report_path[:-4]}.html')
+        df.to_html('../report.html', escape = False)
 
         send_mail(
                 destination='ettore.locascio@unicatt.it',
@@ -154,7 +155,7 @@ EOF""")
                 content= f"""This is an auto-generated email from HTMD from {platform.node()}.
                 {len(lines)}/{len(ligList)} Processed!
                 """,
-                attachment = f'{Report_path[:-4]}.html',
+                attachment = '../report.html',
                 )
     else:
         pass
