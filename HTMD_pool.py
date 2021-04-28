@@ -28,8 +28,8 @@ system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water ti
 def main(mol2):
 
     print(getcwd())
-#    if not isfile(mol2):
-#        return print('ERROR')
+    if not isfile(mol2):
+        return print('ERROR')
     
     filename, ext = splitext(mol2)
     
@@ -43,9 +43,6 @@ def main(mol2):
     chdir(filename)
     system(f'{MATCH} {mol2} {null}')
     if not isfile(f'{filename}.prm'):
-        result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
-        with open(Report_path, 'a') as Report:
-            Report.write('\t'.join(map(str, result)) + '\n')
         chdir('../')
         return print('ERROR')
         
@@ -56,9 +53,6 @@ def main(mol2):
 
 # WRITE ITP FILE
     if not isfile(f'{ligand_ff}/ffbonded.itp'):
-        result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
-        with open(Report_path, 'a') as Report:
-            Report.write('\t'.join(map(str, result)) + '\n')
         chdir('../')
         return print('ERROR')
     with open(f'{ligand_ff}/ffbonded.itp') as ffbonded, open(f'{ligand_ff}/ffnonbonded.itp') as ffnonbonded, open(f'Ligand.top') as ligand_top, open(f'{filename}.itp', 'w') as ligand_itp:
@@ -147,13 +141,13 @@ EOF""")
     with open(Report_path, 'a') as Report:
         Report.write('\t'.join(map(str, result)) + '\n')
     lines = open(Report_path, 'r').readlines()
+
     if len(lines) % int(num) == 0:
         df = pd.read_csv(Report_path, names= columns_name)
-        df = df[df['status'] != 'ERROR']
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
-        report = df.to_html()
-        open(f'{Report_path[:-4]}.html', 'w').write(report)
+        df.to_html(f'{Report_path[:-4]}.html', escape = False)
+
         send_mail(
                 destination='ettore.locascio@unicatt.it',
                 subject = f"Report of Ligand-PALS1 {len(lines)}/{len(ligList)}",
