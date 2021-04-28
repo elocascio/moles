@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, detachmet, gpu_manager
 import pandas as pd
-from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
+from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File, MolFromSmiles
 from multiprocessing import Pool
 import platform
 from plip_contacts import *
@@ -143,8 +143,7 @@ EOF""")
     lines = open(Report_path, 'r').readlines()
 
     if len(lines) % int(num) == 0:
-        df = pd.read_csv(Report_path, names= columns_name)
-        df = df[df['status'] != 'ERROR']
+        df = pd.read_table(Report_path, names= columns_name)
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         PandasTools.AddMoleculeColumnToFrame(df, 'smiles', 'Molecule')
         df.to_html('../report.html', escape = False)
