@@ -1,5 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
 
 def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
     a = []
@@ -18,9 +20,13 @@ def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.plot(a / 1000, b)
-        plt.savefig(filename, format = 'png', dpi = 600)
-        plt.close()
-    return a, b
+        plt.savefig(filename, format = 'png', dpi = 600)        
+        figfile = BytesIO()
+        plt.savefig(figfile, format='png')
+        figfile.seek(0)
+        figdata_png = base64.b64encode(figfile.getvalue()).decode()
+        plot_string = f'<img src="data:image/png;base64,{figdata_png}" /> '
+    return a, b, plot_string
 
 def detachmet(contacts):
     contacts_mean = np.mean(contacts)

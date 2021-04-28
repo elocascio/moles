@@ -12,6 +12,9 @@ import pandas as pd
 from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File
 from multiprocessing import Pool
 import platform
+from plip_contacts import *
+import base64
+from io import BytesIO
 
 _, lig_pattern, receptor, num , nt, pool, Report_path = argv
 
@@ -24,8 +27,9 @@ system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water ti
 
 def main(mol2):
 
-    if not isfile(mol2):
-        return print('ERROR')
+    print(getcwd())
+#    if not isfile(mol2):
+#        return print('ERROR')
     
     filename, ext = splitext(mol2)
     
@@ -41,7 +45,8 @@ def main(mol2):
     if not isfile(f'{filename}.prm'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open(Report_path, 'a') as Report:
-            Report.write(','.join(map(str, result)) + '\n')
+            Report.write('\t'.join(map(str, result)) + '\n')
+        chdir('../')
         return print('ERROR')
         
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
@@ -53,7 +58,8 @@ def main(mol2):
     if not isfile(f'{ligand_ff}/ffbonded.itp'):
         result = [filename, 'ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR']
         with open(Report_path, 'a') as Report:
-            Report.write(','.join(map(str, result)) + '\n')
+            Report.write('\t'.join(map(str, result)) + '\n')
+        chdir('../')
         return print('ERROR')
     with open(f'{ligand_ff}/ffbonded.itp') as ffbonded, open(f'{ligand_ff}/ffnonbonded.itp') as ffnonbonded, open(f'Ligand.top') as ligand_top, open(f'{filename}.itp', 'w') as ligand_itp:
         ffnonbonded_lines = ffnonbonded.readlines()
@@ -133,12 +139,13 @@ EOF""")
     13
     EOF""")
 
-    time, contacts = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
-    time, rmsd = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
-    status, contacts_mean = detachmet(contacts)
-    result = [filename, status, contacts_mean, np.mean(rmsd) * 10, smile, platform.node()]
+    time, all_contacts, all_contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
+    time, rmsd, _ = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
+    status, contacts_mean = detachmet(all_contacts)
+    fig_contacts = contacts()
+    result = [filename, status, contacts_mean, all_contacts_fig, np.mean(rmsd) * 10, fig_contacts, smile, platform.node()]
     with open(Report_path, 'a') as Report:
-        Report.write(','.join(map(str, result)) + '\n')
+        Report.write('\t'.join(map(str, result)) + '\n')
     lines = open(Report_path, 'r').readlines()
     if len(lines) % int(num) == 0:
         df = pd.read_csv(Report_path, names= columns_name)
@@ -157,8 +164,7 @@ EOF""")
                 )
     else:
         pass
-
-    return print('COMPLETE!')
+    chdir('../')
 
 if __name__=='__main__':
     p = Pool(int(pool))
