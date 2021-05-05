@@ -136,7 +136,8 @@ EOF""")
     time, all_contacts, all_contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
     time, rmsd, _ = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(all_contacts)
-    fig_contacts = contacts()
+    system(f'echo 0 | {gmx} trjconv -f MD.xtc -s MD.tpr -o MD_pbc.xtc -pbc mol')
+    fig_contacts = contacts(xtc='MD_pbc.xtc')
     result = [filename, status, contacts_mean, all_contacts_fig, np.mean(rmsd) * 10, fig_contacts, smile, platform.node()]
     with open(Report_path, 'a') as Report:
         Report.write('\t'.join(map(str, result)) + '\n')

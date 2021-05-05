@@ -59,12 +59,12 @@ def gpu_manager():
         ids.append(gpu_id)
     print(ids, ids.count(1), ids.count(0))
     if len(ids) > 0:
-        if ids.count(1) == 0:
-            return 1
-        elif ids.count(0) / ids.count(1) > 1 or ids.count(1) == 0:
-            return 1
-        elif ids.count(0) / ids.count(1) < 1 or ids.count(0) == 0:
+        if ids.count(0) == 0:
             return 0
+        elif ids.count(1) / ids.count(0) > 1 or ids.count(0) == 0:
+            return 0
+        elif ids.count(1) / ids.count(0) < 1 or ids.count(1) == 0:
+            return 1
         else:
             return np.random.randint(2)
     else:

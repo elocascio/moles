@@ -51,7 +51,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
             for salt_bridge in my_interactions.saltbridge_lneg:
                 SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
             for sal_bridge in my_interactions.saltbridge_pneg:
-                SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
+                SaltBridge.appens([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
 
             for h_bond in my_interactions.hbonds_ldon:
                 HBond.append([str(h_bond.resnr) + str(h_bond.restype), str(h_bond.type)])
@@ -85,7 +85,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
     
     df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0).any()]
     df_all = df_all.sort_values(by=['residue'])
-    df_all.to_csv('coordination.csv')
+    df_all.to_csv('coord.csv')
     ax = df_all.plot.bar(stacked = True, color = colors)
     ax.legend(bbox_to_anchor=(1.01, 1), loc='best')
     ax.set_ylabel('coordination')
