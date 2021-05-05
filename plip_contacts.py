@@ -85,7 +85,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
     
     df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0).any()]
     df_all = df_all.sort_values(by=['residue'])
-    
+    df_all.to_csv('coordination.csv')
     ax = df_all.plot.bar(stacked = True, color = colors)
     ax.legend(bbox_to_anchor=(1.01, 1), loc='best')
     ax.set_ylabel('coordination')
