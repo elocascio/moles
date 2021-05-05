@@ -67,6 +67,8 @@ def gpu_manager():
             return 1
         else:
             return np.random.randint(2)
+    elif len(ids) == 0:
+        return 0
     else:
         return np.random.randint(2)
 
