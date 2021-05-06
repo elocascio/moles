@@ -31,7 +31,7 @@ def plot_xvg(xvg, title, filename, xlabel = 'x', ylabel = 'y'):
 
 def detachmet(contacts):
     contacts_mean = np.mean(contacts)
-    if (np.count_nonzero(contacts < 150) / contacts.shape[0]) < 0.40:
+    if (np.count_nonzero(contacts < 150) / contacts.shape[0]) > 0.40:
         status = 'poor ligand'
         pass
     else: status = 'attached'

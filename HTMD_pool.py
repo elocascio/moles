@@ -146,6 +146,7 @@ EOF""")
     if len(lines) % int(num) == 0:
         df = pd.read_table(Report_path, names= columns_name)
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
+        df = df.head(100)
         df['Molecule'] = df['smiles'].apply(MolFromSmiles)
         df.to_html('../report.html', escape = False)
 

@@ -51,7 +51,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
             for salt_bridge in my_interactions.saltbridge_lneg:
                 SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
             for sal_bridge in my_interactions.saltbridge_pneg:
-                SaltBridge.appens([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
+                SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
 
             for h_bond in my_interactions.hbonds_ldon:
                 HBond.append([str(h_bond.resnr) + str(h_bond.restype), str(h_bond.type)])
