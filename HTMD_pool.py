@@ -1,6 +1,5 @@
 from os import system, getcwd, listdir, makedirs, rename, chdir
 from os.path import splitext, isfile
-from sys import argv
 import glob
 from var import *
 from shutil import copyfile
@@ -13,17 +12,29 @@ from rdkit.Chem import PandasTools, MolToSmiles, MolFromMol2File, MolFromSmiles
 from multiprocessing import Pool
 import platform
 from plip_contacts import *
-import base64
-from io import BytesIO
+import argparse
+from moles import init
 
-_, lig_pattern, receptor, num , nt, pool, Report_path = argv
+init()
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-gmx", type=str, help="gromacs --- default gmx", default = 'gmx')
+parser.add_argument("-mdrun", type=str, help="mdrun --- default mdrun_tmpi", default = 'mdrun_tmpi')
+parser.add_argument("-nt", "--numthread", type=int, help="number of threads --- default 4", default = 4)
+parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation --- default 5 ns", default = 5)
+parser.add_argument("-step", type=int, help="step in ps --- default 0.002", default = 0.002)
+parser.add_argument("-ln", "--lignum", type=int, help="send mail every n ligands --- default 20", default = 20)
+parser.add_argument("-p", "--pool", type=int, help="number of process --- default 4", default = 4)
+parser.add_argument("-l", "--ligname", type=str, help="ligand common name or mol2 ligand file w/o ext--- default ZINC", default = 'ZINC')
+parser.add_argument("-r", "--receptor", type=str, help="receptor pdb --- default protein.pdb", default = 'protein.pdb')
+parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
+args = parser.parse_args()
 
-ligList = glob.glob(f'{lig_pattern}*.mol2')
+ligList = glob.glob(f'{args.ligname}*.mol2')
 
-print(receptor, len(ligList))
+print(args.receptor, len(ligList))
 
-system(f'{gmx} pdb2gmx -ff charmm36m -f {receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
+system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
 def main(mol2):
 
@@ -49,7 +60,7 @@ def main(mol2):
     system(f'python {charmm2gmx} {getcwd()}/{filename}.rtf {getcwd()}/{filename}.prm {filename}.ff')
     ligand_ff = f'{filename}.ff'
     system(f'obabel -imol2 {mol2} -opdb -O {filename}.pdb {null}')
-    system(f'{gmx} pdb2gmx --ff {filename} -f {filename}.pdb -o Ligand_gmx.pdb -p Ligand.top {null}')
+    system(f'{args.gmx} pdb2gmx --ff {filename} -f {filename}.pdb -o Ligand_gmx.pdb -p Ligand.top {null}')
 
 # WRITE ITP FILE
     if not isfile(f'{ligand_ff}/ffbonded.itp'):
@@ -92,14 +103,14 @@ def main(mol2):
             if line.startswith('ATOM') or line.startswith('HETATM'):
                 Complex.write(line)
     
-    system(f'{gmx} editconf -f {Complex.name} -o {Complex.name} -d 1.0 -quiet')
-    system(f'{gmx} solvate -cp {Complex.name} -o {Complex.name} -p topol.top -quiet')
+    system(f'{args.gmx} editconf -f {Complex.name} -o {Complex.name} -d 1.0 -quiet')
+    system(f'{args.gmx} solvate -cp {Complex.name} -o {Complex.name} -p topol.top -quiet')
 
     ions_mdp = make_mdp('ions')
-    system(f'{gmx} grompp -f {ions_mdp} -c {Complex.name} -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet {null}')
-    system(f'echo 15 | {gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet {null}')
+    system(f'{args.gmx} grompp -f {ions_mdp} -c {Complex.name} -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet {null}')
+    system(f'echo 15 | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet {null}')
 
-    system(f"""{gmx} -quiet make_ndx -f Complex_4mini.pdb -o index.ndx << EOF
+    system(f"""{args.gmx} -quiet make_ndx -f Complex_4mini.pdb -o index.ndx << EOF
 1 | 20
 q
 EOF""")
@@ -107,28 +118,28 @@ EOF""")
 #------------ MINIMIZATION
     deviceID = gpu_manager()
     mini_mdp = make_mdp(mdp = 'mini')
-    system(f'{gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
-    system(f'{mdrun} -deffnm mini -nt {nt} -gpu_id {deviceID}')
+    system(f'{args.gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
+    system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {deviceID}')
 
 #------------- EQUILIBRATION
     equi_mdp = make_mdp(mdp = 'equi')
-    system(f'{gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
+    system(f'{args.gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10 {null}')
     deviceID = gpu_manager()
-    system(f'{mdrun} -deffnm equi -nt {nt} -gpu_id {deviceID}')
+    system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {deviceID}')
 
 #------------- MD
-    MD_mdp = make_mdp(mdp = 'MD')
-    system(f'{gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10 {null}')
+    MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
+    system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10 {null}')
     deviceID = gpu_manager()
-    system(f'{mdrun} -v -deffnm MD -nt {nt} -gpu_id {deviceID}')
+    system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {deviceID}')
 
 #------------- ANALISYS
-    system(f'{gmx} editconf -f MD.tpr -o MD.pdb {null}')
-    system(f"""{gmx} mindist -f MD.xtc -s MD.tpr -d 0.45 -n index.ndx -on contacts.xvg << EOF
+    system(f'{args.gmx} editconf -f MD.tpr -o MD.pdb {null}')
+    system(f"""{args.gmx} mindist -f MD.xtc -s MD.tpr -d 0.45 -n index.ndx -on contacts.xvg << EOF
     Protein
     13
     EOF""")
-    system(f"""{gmx} rms -f MD.xtc -s MD.tpr -n index.ndx << EOF
+    system(f"""{args.gmx} rms -f MD.xtc -s MD.tpr -n index.ndx << EOF
     24
     13
     EOF""")
@@ -136,15 +147,15 @@ EOF""")
     time, all_contacts, all_contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
     time, rmsd, _ = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(all_contacts)
-    system(f'echo 0 | {gmx} trjconv -f MD.xtc -s MD.tpr -o MD_pbc.xtc -pbc mol')
+    system(f'echo 0 | {args.gmx} trjconv -f MD.xtc -s MD.tpr -o MD_pbc.xtc -pbc mol')
     fig_contacts = contacts(xtc='MD_pbc.xtc')
     result = [filename, status, contacts_mean, all_contacts_fig, np.mean(rmsd) * 10, fig_contacts, smile, platform.node()]
-    with open(Report_path, 'a') as Report:
+    with open(args.report, 'a') as Report:
         Report.write('\t'.join(map(str, result)) + '\n')
-    lines = open(Report_path, 'r').readlines()
+    lines = open(args.report, 'r').readlines()
 
-    if len(lines) % int(num) == 0:
-        df = pd.read_table(Report_path, names= columns_name)
+    if len(lines) % int(args.lignum) == 0:
+        df = pd.read_table(args.report, names= columns_name)
         df = df.sort_values(by=['contacts_average', 'status'], ascending = False)
         df = df.head(100)
         df['Molecule'] = df['smiles'].apply(MolFromSmiles)
@@ -163,6 +174,6 @@ EOF""")
     chdir('../')
 
 if __name__=='__main__':
-    p = Pool(int(pool))
+    p = Pool(int(args.pool))
     p.map_async(main, ligList, chunksize=1).get()
     p.close()
