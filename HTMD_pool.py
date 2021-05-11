@@ -23,11 +23,11 @@ parser.add_argument("-mdrun", type=str, help="mdrun --- default mdrun_tmpi", def
 parser.add_argument("-nt", "--numthread", type=int, help="number of threads --- default 4", default = 4)
 parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation --- default 5 ns", default = 5)
 parser.add_argument("-step", type=int, help="step in ps --- default 0.002", default = 0.002)
-parser.add_argument("-ln", "--lignum", type=int, help="send mail every n ligands --- default 20", default = 20)
+parser.add_argument("-ln", "--lignum", type=int, help="send mail every n ligands --- default 20", default = 50)
 parser.add_argument("-p", "--pool", type=int, help="number of process --- default 4", default = 4)
 parser.add_argument("-l", "--ligname", type=str, help="ligand common name or mol2 ligand file w/o ext--- default ZINC", default = 'ZINC')
 parser.add_argument("-r", "--receptor", type=str, help="receptor pdb --- default protein.pdb", default = 'protein.pdb')
-parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
+parser.add_argument("-f", "--report", type=str, help="path of report --- default ./report.csv", default = './report.csv')
 args = parser.parse_args()
 
 ligList = glob.glob(f'{args.ligname}*.mol2')
