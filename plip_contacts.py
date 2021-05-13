@@ -12,7 +12,7 @@ import base64
 from io import BytesIO
 
 
-def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
+def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     Hydrophobic = []
     PiStacking_T = []
     PiStacking_P = []
@@ -28,13 +28,13 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
     complexo = u.select_atoms('(protein) or (resname UNK)')
     water = u.select_atoms('(around 10 resname UNK) and (resname SOL)')
     complexo = complexo + water
-    unk = u.select_atoms('resname UNK'); unk = unk.resids[0]
+    unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
     for ts in u.trajectory:
         if ts.time % step == 0:
             complexo.write('trajj.pdb')
             mol = PDBComplex()
             mol.load_pdb('trajj.pdb')
-            UNK = f'UNK:B:{unk}'
+            UNK = f'{ligand}:B:{unk}'
             mol.analyze()
             my_interactions = mol.interaction_sets[UNK]
 

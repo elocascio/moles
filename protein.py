@@ -21,7 +21,7 @@ parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation ---
 parser.add_argument("-step", type=float, help="step in ps --- default 0.002", default = 0.002)
 parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help="vsite --- default None", default = '')
 parser.add_argument("-native", action='store_true', help="Native Contact Analysis")
-parser.add_argument("-p", "--pool", type=int, help="number of process --- default 4", default = 4)
+parser.add_argument("-p", "--pool", type=int, help="number of process --- default 1", default = 1)
 parser.add_argument("-s", "--system", type=str, help="system PDB file")
 parser.add_argument("-r", "--receptor", type=str, help="receptor pdb --- default protein.pdb", default = 'protein.pdb')
 parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
