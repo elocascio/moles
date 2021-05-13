@@ -1,5 +1,5 @@
 from os import listdir, chdir, path, rename
-from shtil import rmtree
+from shutil import rmtree
 
 items = listdir('.')
 

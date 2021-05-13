@@ -2,7 +2,6 @@ import MDAnalysis
 from MDAnalysis.analysis import contacts
 from os import system, getcwd, listdir, makedirs, rename, chdir
 from os.path import splitext, isfile
-import glob
 from shutil import copyfile
 from make_mdp import make_mdp
 import numpy as np 
@@ -10,9 +9,10 @@ import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, gpu_manager
 import pandas as pd
 from multiprocessing import Pool
-import platform
 import argparse
+from moles import init
 
+init()
 parser = argparse.ArgumentParser()
 parser.add_argument("-gmx", type=str, help="gromacs --- default gmx", default = 'gmx')
 parser.add_argument("-mdrun", type=str, help="mdrun --- default mdrun_tmpi", default = 'mdrun_tmpi')
