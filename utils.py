@@ -118,8 +118,8 @@ def coordination():
     df_C = pd.DataFrame(H, columns=['residue', 'coord_C'])
     df_P = pd.DataFrame(P, columns=['residue', 'coord_P'])
     aggregation_functions = {'coord_C': 'sum', 'coord_P': 'sum'}
-    df_C = df.groupby(df_C['residue']).aggregate(aggregation_functions)
-    df_P = df.groupby(df_P['residue']).aggregate(aggregation_functions)
+    df_C = df_C.groupby(df_C['residue']).aggregate(aggregation_functions)
+    df_P = df_P.groupby(df_P['residue']).aggregate(aggregation_functions)
     df_all = pd.concat([df_C, df_P], axis = 1)
     df_all = df_all.fillna(0) ; df_all = df_all[(df_all.T != 0).any()]
 

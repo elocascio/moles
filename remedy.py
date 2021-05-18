@@ -11,3 +11,4 @@ for item in items:
             chdir('../')
             rmtree(item)
             print(f'{item} restored!')
+        else: chdir('../')
