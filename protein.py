@@ -37,7 +37,7 @@ system(f'{args.gmx} solvate -cp {args.system}_gmx.pdb -o {args.system}_gmx.pdb -
 
 ions_mdp = make_mdp('ions')
 system(f'{args.gmx} grompp -f {ions_mdp} -c {args.system}_gmx.pdb -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet')
-system(f'echo 15 | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet')
+system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet')
 
 #------------ MINIMIZATION
 deviceID = gpu_manager()
