@@ -10,7 +10,7 @@ args = parser.parse_args()
 
 makedirs(f'BEST_{args.best}', exist_ok=True)
 
-df = pd.read_table({args.table})
+df = pd.read_table(args.table)
 df = df.head(args.best)
 
 for element in df['ligand'].values:
