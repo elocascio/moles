@@ -25,7 +25,7 @@ parser.add_argument("-step", type=float, help="step in ps --- default 0.002", de
 parser.add_argument("-ln", "--lignum", type=int, help="send mail every n ligands --- default 50", default = 50)
 parser.add_argument("-p", "--pool", type=int, help="number of process --- default 4", default = 4)
 parser.add_argument("-l", "--ligname", type=str, help="ligand common name or mol2 ligand file w/o ext --- default ZINC", default = 'ZINC')
-parser.add_argument("-ids", "--ligID", type=str, help="ligand id --- default UNK", default = 'UNK')
+parser.add_argument("-i", "--ligID", type=str, help="ligand id --- default UNK", default = 'UNK')
 parser.add_argument("-r", "--receptor", type=str, help="receptor pdb --- default protein.pdb", default = 'protein.pdb')
 parser.add_argument("-f", "--report", type=str, help="path of report --- default ./report.csv", default = './report.csv')
 args = parser.parse_args()
@@ -143,12 +143,11 @@ EOF""")
     24
     13
     EOF""")
-
     time, all_contacts, all_contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
     time, rmsd, _ = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(all_contacts)
     system(f'echo 0 | {args.gmx} trjconv -f MD.xtc -s MD.tpr -o MD_pbc.xtc -pbc mol')
-    fig_contacts = contacts(xtc='MD_pbc.xtc', ligand = args.ids)
+    fig_contacts = contacts(xtc='MD_pbc.xtc', ligand = args.i)
     result = [filename, status, contacts_mean, all_contacts_fig, np.mean(rmsd) * 10, fig_contacts, smile, platform.node()]
     with open(args.report, 'a') as Report:
         Report.write('\t'.join(map(str, result)) + '\n')
