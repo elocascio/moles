@@ -34,13 +34,13 @@ ligList = glob.glob(f'{args.ligname}*.mol2')
 
 print(args.receptor, len(ligList))
 
-system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
+system(f'{args.gmx} pdb2gmx -ff charmm27 -f {args.receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
 def main(mol2):
 
     print(getcwd())
     if not isfile(mol2):
-        return print('ERROR')
+        return print('ERROR no mol2')
     
     filename, ext = splitext(mol2)
     
@@ -81,16 +81,27 @@ def main(mol2):
             elif '[ system ]' in line:
                 break
             else: ligand_itp.write(line)
+        ligand_itp.write("""
+; Include Position restraint file
+#ifdef POSRES
+#include "posre.itp"
+#endif""")
         print(f'{ligand_itp.name} scritto!')
 
 # COPY AND MODIFY TOPOL.TOP
     copyfile('../topol.top', './topol.top')
+    copyfile('../posre.itp', './protein.itp')
     topol_line = open('topol.top').readlines()
+
     with open('topol.top', 'w') as topol:
         for line in topol_line:
-            topol.write(line)
             if 'forcefield.itp' in line:
+                topol.write(line)
                 topol.write(f'#include "{ligand_itp.name}"\n')
+            elif 'posre.itp' in line:
+                line = '#include "protein.itp"\n'
+                topol.write(line)
+            else: topol.write(line)
         topol.write('UNK   1\n')
 
 # MAKE COMPLEX PDB
@@ -135,19 +146,19 @@ EOF""")
 
 #------------- ANALISYS
     system(f'{args.gmx} editconf -f MD.tpr -o MD.pdb {null}')
-    system(f"""{args.gmx} mindist -f MD.xtc -s MD.tpr -d 0.45 -n index.ndx -on contacts.xvg << EOF
+    system(f'echo 0 | {args.gmx} trjconv -f MD.xtc -s MD.tpr -o MD_pbc.xtc -pbc mol')
+    system(f"""{args.gmx} mindist -f MD_pbc.xtc -s MD.tpr -d 0.45 -n index.ndx -on contacts.xvg << EOF
     Protein
     13
     EOF""")
-    system(f"""{args.gmx} rms -f MD.xtc -s MD.tpr -n index.ndx << EOF
+    system(f"""{args.gmx} rms -f MD_pbc.xtc -s MD.tpr -n index.ndx << EOF
     24
     13
     EOF""")
     time, all_contacts, all_contacts_fig = plot_xvg('contacts.xvg', 'Number of Contacts',  'contacts.png' ,'Time', 'Concats')
     time, rmsd, _ = plot_xvg('rmsd.xvg', 'RMSD', 'rmsd.png', 'Time', 'RMSD (A)')
     status, contacts_mean = detachmet(all_contacts)
-    system(f'echo 0 | {args.gmx} trjconv -f MD.xtc -s MD.tpr -o MD_pbc.xtc -pbc mol')
-    fig_contacts = contacts(xtc='MD_pbc.xtc', step = args.nanoseconds / 50,ligand = args.ligID)
+    fig_contacts = contacts(xtc='MD_pbc.xtc', step = args.nanoseconds / 50, ligand = args.ligID)
     result = [filename, status, contacts_mean, all_contacts_fig, np.mean(rmsd) * 10, fig_contacts, smile, platform.node()]
     with open(args.report, 'a') as Report:
         Report.write('\t'.join(map(str, result)) + '\n')
