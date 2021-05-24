@@ -34,7 +34,7 @@ ligList = glob.glob(f'{args.ligname}*.mol2')
 
 print(args.receptor, len(ligList))
 
-system(f'{args.gmx} pdb2gmx -ff charmm27 -f {args.receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
+system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.receptor} -o Receptor_gmx.pdb -water tip3p -ignh -p topol.top {null}')
 
 def main(mol2):
 
