@@ -40,7 +40,7 @@ def main(sys):
         system(f'{args.gmx} pdb2gmx -ff charmm36m -f {sys} -vsite {args.vsite} -o {filename}_gmx.pdb -water tip3p -ignh -p topol.top')
         print('IF YOU ARE USING VSITE, RISE THE STEP! 0.002 --> 0.004')
     else:
-        system(f'{args.gmx} pdb2gmx -ff charmm36m -f {sys} -o {filename}_gmx.pdb -water tip3p -ignh -p topol.top')
+        system(f'{args.gmx} pdb2gmx -ff charmm27 -f {sys} -o {filename}_gmx.pdb -water tip3p -ignh -p topol.top')
 
     system(f'{args.gmx} editconf -f {filename}_gmx.pdb -o {filename}_gmx.pdb -d 1.0 -quiet')
     system(f'{args.gmx} solvate -cp {filename}_gmx.pdb -o {filename}_gmx.pdb -p topol.top -quiet')
