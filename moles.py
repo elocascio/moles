@@ -36,7 +36,7 @@ MOLEcular dynamics Suite
                         ~~~  .-'__..-~'           Ekein                         
                              ~~~
 """)
-    time.sleep(1.33)
+    time.sleep(1.01)
 
 if __name__=='__main__':
     init()
