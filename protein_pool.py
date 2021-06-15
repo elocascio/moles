@@ -1,6 +1,7 @@
 from os import system, getcwd, listdir, makedirs, rename, chdir
 from os.path import splitext, isfile
 from shutil import copyfile
+import glob
 from make_mdp import make_mdp
 import numpy as np 
 import matplotlib.pyplot as plt
