@@ -23,6 +23,7 @@ parser.add_argument("-p", "--pool", type=int, help="number of process --- defaul
 parser.add_argument("-s", "--system", type=str, help="system PDB file")
 parser.add_argument("-r", "--receptor", type=str, help="receptor pdb --- default protein.pdb", default = 'protein.pdb')
 parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
+parser.add_argument("-l", "--ligname", type=str, help="ligand common name or mol2 ligand file w/o ext --- default ZINC", default = 'ZINC')
 args = parser.parse_args()
 
 sysList = glob.glob(f'{args.ligname}*.mol2')
