@@ -37,16 +37,16 @@ def main(sys):
     chdir(filename)
 
     if args.vsite: 
-        system(f'{args.gmx} pdb2gmx -ff charmm36m -f {sys} -vsite {args.vsite} -o {sys}_gmx.pdb -water tip3p -ignh -p topol.top')
+        system(f'{args.gmx} pdb2gmx -ff charmm36m -f {sys} -vsite {args.vsite} -o {filename}_gmx.pdb -water tip3p -ignh -p topol.top')
         print('IF YOU ARE USING VSITE, RISE THE STEP! 0.002 --> 0.004')
     else:
-        system(f'{args.gmx} pdb2gmx -ff charmm36m -f {sys} -o {sys}_gmx.pdb -water tip3p -ignh -p topol.top')
+        system(f'{args.gmx} pdb2gmx -ff charmm36m -f {sys} -o {filename}_gmx.pdb -water tip3p -ignh -p topol.top')
 
-    system(f'{args.gmx} editconf -f {sys}_gmx.pdb -o {sys}_gmx.pdb -d 1.0 -quiet')
-    system(f'{args.gmx} solvate -cp {sys}_gmx.pdb -o {sys}_gmx.pdb -p topol.top -quiet')
+    system(f'{args.gmx} editconf -f {filename}_gmx.pdb -o {filename}_gmx.pdb -d 1.0 -quiet')
+    system(f'{args.gmx} solvate -cp {filename}_gmx.pdb -o {filename}_gmx.pdb -p topol.top -quiet')
 
     ions_mdp = make_mdp('ions')
-    system(f'{args.gmx} grompp -f {ions_mdp} -c {sys}_gmx.pdb -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet')
+    system(f'{args.gmx} grompp -f {ions_mdp} -c {filename}_gmx.pdb -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet')
     system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet')
 
     #------------ MINIMIZATION
