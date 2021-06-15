@@ -69,6 +69,6 @@ def main(system):
 
 if __name__=='__main__':
     p = Pool(int(args.pool))
-    p.map_async(main, ligList, chunksize=1).get()
+    p.map_async(main, sysList, chunksize=1).get()
     p.close()
 
