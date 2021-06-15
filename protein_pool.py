@@ -33,7 +33,7 @@ def main(system):
 
     filename, ext = splitext(system)
     makedirs(filename,  exist_ok=True)
-    rename(system, f'{filename}/{mol2}')
+    rename(system, f'{filename}/{system}')
     chdir(filename)
 
     if args.vsite: 
