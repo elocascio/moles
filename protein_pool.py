@@ -27,7 +27,7 @@ parser.add_argument("-f", "--report", type=str, help="path of report --- default
 parser.add_argument("-l", "--ligname", type=str, help="ligand common name or mol2 ligand file w/o ext --- default ZINC", default = 'ZINC')
 args = parser.parse_args()
 
-sysList = glob.glob(f'{args.ligname}*.mol2')
+sysList = glob.glob(f'{args.ligname}*.pdb')
 
 def main(system):
 
