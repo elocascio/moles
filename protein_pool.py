@@ -29,23 +29,24 @@ args = parser.parse_args()
 
 sysList = glob.glob(f'{args.ligname}*.pdb')
 
-def main(system):
+def main(sys):
 
-    filename, ext = splitext(system)
+    filename, ext = splitext(sys)
     makedirs(filename,  exist_ok=True)
-    rename(system, f'{filename}/{system}')
+    rename(sys, f'{filename}/{sys}')
     chdir(filename)
 
     if args.vsite: 
         system(f'{args.gmx} pdb2gmx -ff charmm36m -f {system} -vsite {args.vsite} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
         print('IF YOU ARE USING VSITE, RISE THE STEP! 0.002 --> 0.004')
-    else:           system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.system} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
+    else:
+        system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.system} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
 
-    system(f'{args.gmx} editconf -f {args.system}_gmx.pdb -o {system}_gmx.pdb -d 1.0 -quiet')
-    system(f'{args.gmx} solvate -cp {args.system}_gmx.pdb -o {system}_gmx.pdb -p topol.top -quiet')
+    system(f'{args.gmx} editconf -f {args.sys}_gmx.pdb -o {sys}_gmx.pdb -d 1.0 -quiet')
+    system(f'{args.gmx} solvate -cp {args.sys}_gmx.pdb -o {sys}_gmx.pdb -p topol.top -quiet')
 
     ions_mdp = make_mdp('ions')
-    system(f'{args.gmx} grompp -f {ions_mdp} -c {args.system}_gmx.pdb -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet')
+    system(f'{args.gmx} grompp -f {ions_mdp} -c {args.sys}_gmx.pdb -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet')
     system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet')
 
     #------------ MINIMIZATION
