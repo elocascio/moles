@@ -23,7 +23,6 @@ parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help=
 parser.add_argument("-native", action='store_true', help="Native Contact Analysis")
 parser.add_argument("-p", "--pool", type=int, help="number of process --- default 1", default = 1)
 parser.add_argument("-s", "--system", type=str, help="system PDB file")
-parser.add_argument("-r", "--receptor", type=str, help="receptor pdb --- default protein.pdb", default = 'protein.pdb')
 parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
 args = parser.parse_args()
 
@@ -32,7 +31,7 @@ if args.vsite:
     print('IF YOU ARE USING VSITE, RISE THE STEP! 0.002 --> 0.004')
 else:           system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.system} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
 
-system(f'{args.gmx} editconf -f {args.system}_gmx.pdb -o {args.system}_gmx.pdb -d 1.0 -quiet')
+system(f'{args.gmx} editconf -f {args.system}_gmx.pdb -o {args.system}_gmx.pdb -d 10.0 -quiet')
 system(f'{args.gmx} solvate -cp {args.system}_gmx.pdb -o {args.system}_gmx.pdb -p topol.top -quiet')
 
 ions_mdp = make_mdp('ions')
