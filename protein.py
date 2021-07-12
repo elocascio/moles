@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, gpu_manager
 import pandas as pd
 from multiprocessing import Pool
+from Misc.mutation import mutation
 import argparse
 from moles import init
 
@@ -21,10 +22,16 @@ parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation ---
 parser.add_argument("-step", type=float, help="step in ps --- default 0.002", default = 0.002)
 parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help="vsite --- default None", default = '')
 parser.add_argument("-native", action='store_true', help="Native Contact Analysis")
+parser.add_argument("-mutation", action='store_true', help="Native Contact Analysis")
 parser.add_argument("-p", "--pool", type=int, help="number of process --- default 1", default = 1)
 parser.add_argument("-s", "--system", type=str, help="system PDB file")
 parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
+parser.add_argument("-r", type=str, help="residue to mutate - syntax \"A-588,B-577,C-23\"")
+parser.add_argument("-a", type=str, help="aminoacid to substitute, 3 letter, comma separate. IN ORDER - ex. \"ANS,PHE,ARG,TRP\"")
 args = parser.parse_args()
+
+if args.mutation:
+    mutation(args.system, args.r, args.a, args.system)
 
 if args.vsite: 
     system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.system} -vsite {args.vsite} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
