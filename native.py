@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from MDAnalysis.analysis import contacts
 import numpy as np
 import argparse
-from moles import init
+from Misc.moles import init
 import seaborn as sns
 from os import system, listdir, chdir
 import pickle as pkl

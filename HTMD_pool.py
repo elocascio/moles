@@ -12,7 +12,7 @@ from multiprocessing import Pool
 import platform
 from plip_contacts import *
 import argparse
-from moles import init
+from Misc.moles import init
 
 init()
 

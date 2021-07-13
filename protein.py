@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, gpu_manager
 import pandas as pd
 from multiprocessing import Pool
-from Misc.mutation import mutation
+from mutation import mutation
 import argparse
-from moles import init
+from Misc.moles import init
 
 init()
 parser = argparse.ArgumentParser()
@@ -21,6 +21,7 @@ parser.add_argument("-nt", "--numthread", type=int, help="number of threads --- 
 parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation --- default 5 ns", default = 5)
 parser.add_argument("-step", type=float, help="step in ps --- default 0.002", default = 0.002)
 parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help="vsite --- default None", default = '')
+parser.add_argument("-d", "-distance", type=float, help="distance from solute --- default 1", default = 1)
 parser.add_argument("-native", action='store_true', help="Native Contact Analysis")
 parser.add_argument("-mutation", action='store_true', help="Native Contact Analysis")
 parser.add_argument("-p", "--pool", type=int, help="number of process --- default 1", default = 1)
@@ -38,7 +39,7 @@ if args.vsite:
     print('IF YOU ARE USING VSITE, RISE THE STEP! 0.002 --> 0.004')
 else:           system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.system} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
 
-system(f'{args.gmx} editconf -f {args.system}_gmx.pdb -o {args.system}_gmx.pdb -d 10.0 -quiet')
+system(f'{args.gmx} editconf -f {args.system}_gmx.pdb -o {args.system}_gmx.pdb -d {args.d} -quiet')
 system(f'{args.gmx} solvate -cp {args.system}_gmx.pdb -o {args.system}_gmx.pdb -p topol.top -quiet')
 
 ions_mdp = make_mdp('ions')

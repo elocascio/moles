@@ -9,7 +9,7 @@ from utils import plot_xvg, send_mail, gpu_manager
 import pandas as pd
 from multiprocessing import Pool
 import argparse
-from moles import init
+from Misc.moles import init
 
 init()
 parser = argparse.ArgumentParser()

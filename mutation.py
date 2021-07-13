@@ -1,7 +1,7 @@
 from pymol import cmd
 from itertools import cycle
 import argparse
-from ..moles import init
+from Misc.moles import init
 
 def mutation(pdb, residues, mutation, pdb_out):
     cmd.wizard("mutagenesis")
@@ -27,7 +27,7 @@ def mutation(pdb, residues, mutation, pdb_out):
 
 if __name__=='__main__':
 
-#    init()
+    init()
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", type=str, help="input pdb file")
     parser.add_argument("-r", type=str, help="residue to mutate - syntax \"A-588,B-577,C-23\"")

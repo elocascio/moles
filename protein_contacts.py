@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
-def protein_contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10)
+def protein_contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
     Hydrophobic = []
     PiStacking_T = []
     PiStacking_P = []
