@@ -29,7 +29,12 @@ parser.add_argument("-s", "--system", type=str, help="system PDB file")
 parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
 parser.add_argument("-r", type=str, help="residue to mutate - syntax \"A-588,B-577,C-23\"")
 parser.add_argument("-a", type=str, help="aminoacid to substitute, 3 letter, comma separate. IN ORDER - ex. \"ANS,PHE,ARG,TRP\"")
+parser.add_argument("-ntmpi", action='store_true', help="ntmpi 1")
 args = parser.parse_args()
+
+if args.ntmpi:
+    ntmpi = "-ntmpi 1"
+else: ntmpi = ""
 
 if args.mutation:
     mutation(args.system, args.r, args.a, args.system)
@@ -50,19 +55,19 @@ system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex
 deviceID = gpu_manager()
 mini_mdp = make_mdp(mdp = 'mini')
 system(f'{args.gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
-system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {deviceID} -v')
+system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {deviceID} -v {ntmpi}')
 
 #------------- EQUILIBRATION
 equi_mdp = make_mdp(mdp = 'equi')
 system(f'{args.gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {deviceID} -v')
+system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {deviceID} -v {ntmpi}')
 
 #------------- MD
 MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
 system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {deviceID}')
+system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {deviceID} {ntmpi}')
 
 #----------- Analysis
 if args.native:
