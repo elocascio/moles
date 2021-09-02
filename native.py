@@ -14,6 +14,8 @@ import sys
 init()
 parser = argparse.ArgumentParser()
 parser.add_argument("-tpr", type=str, help='tpr file to use as reference', default='MD.tpr')
+parser.add_argument("-xtc", type=str, help='xtc file to use as reference', default='MD.xtc')
+
 parser.add_argument("-method", type=str, choices=['switch_function', 'hard'])
 parser.add_argument("-ref", type=str, help="path of matrix referement" )
 parser.add_argument("-sub", action='store_true', help="Calcualte Delta Matrix")
@@ -37,7 +39,7 @@ if args.multi == False:
     if not isfile('MD.pdb'):
         system(f'gmx editconf -f {args.tpr} -o MD.pdb')
 
-    u = MDAnalysis.Universe('MD.pdb','MD.xtc')
+    u = MDAnalysis.Universe('MD.pdb',args.xtc)
 
     target_A_str = f'{args.sel_A}' ; target_A = u.select_atoms(target_A_str)
     target_B_str = f'{args.sel_B}'; target_B = u.select_atoms(target_B_str)
