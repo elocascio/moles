@@ -4,7 +4,7 @@ from os import system, getcwd, listdir, makedirs, rename, chdir
 from os.path import splitext, isfile
 from shutil import copyfile
 from make_mdp import make_mdp
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 from utils import plot_xvg, send_mail, gpu_manager
 import pandas as pd
@@ -20,9 +20,10 @@ parser.add_argument("-mdrun", type=str, help="mdrun --- default mdrun_tmpi", def
 parser.add_argument("-nt", "--numthread", type=int, help="number of threads --- default 4", default = 4)
 parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation --- default 5 ns", default = 5)
 parser.add_argument("-step", type=float, help="step in ps --- default 0.002", default = 0.002)
+parser.add_argument("-ff", type=str, choices=['charmm36m', 'oplsaa'], help="force field")
 parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help="vsite --- default None", default = '')
 parser.add_argument("-d", "-distance", type=float, help="distance from solute --- default 1", default = 1)
-parser.add_argument("-native", action='store_true', help="Native Contact Analysis")
+parser.add_argument("-bt", type=str, choices=['cubic', 'triclinic', 'dodecahedron', 'octahedron'], help="box shape")
 parser.add_argument("-mutation", action='store_true', help="Native Contact Analysis")
 parser.add_argument("-p", "--pool", type=int, help="number of process --- default 1", default = 1)
 parser.add_argument("-s", "--system", type=str, help="system PDB file")
@@ -30,6 +31,7 @@ parser.add_argument("-f", "--report", type=str, help="path of report --- default
 parser.add_argument("-r", type=str, help="residue to mutate - syntax \"A-588,B-577,C-23\"")
 parser.add_argument("-a", type=str, help="aminoacid to substitute, 3 letter, comma separate. IN ORDER - ex. \"ANS,PHE,ARG,TRP\"")
 parser.add_argument("-ntmpi", action='store_true', help="ntmpi 1")
+parser.add_argument("-trj", help="periodic boundary conditions adjustment")
 args = parser.parse_args()
 
 if args.ntmpi:
@@ -39,12 +41,12 @@ else: ntmpi = ""
 if args.mutation:
     mutation(args.system, args.r, args.a, args.system)
 
-if args.vsite: 
-    system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.system} -vsite {args.vsite} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
+if args.vsite:
+    system(f'{args.gmx} pdb2gmx -ff {args.ff} -f {args.system} -vsite {args.vsite} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
     print('IF YOU ARE USING VSITE, RISE THE STEP! 0.002 --> 0.004')
-else:           system(f'{args.gmx} pdb2gmx -ff charmm36m -f {args.system} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
+else:           system(f'{args.gmx} pdb2gmx -ff {args.ff} -f {args.system} -o {args.system}_gmx.pdb -water tip3p -ignh -p topol.top')
 
-system(f'{args.gmx} editconf -f {args.system}_gmx.pdb -o {args.system}_gmx.pdb -d {args.d} -quiet')
+system(f'{args.gmx} editconf -f {args.system}_gmx.pdb -o {args.system}_gmx.pdb -c -d {args.d} -bt {args.bt} -quiet')
 system(f'{args.gmx} solvate -cp {args.system}_gmx.pdb -o {args.system}_gmx.pdb -p topol.top -quiet')
 
 ions_mdp = make_mdp('ions')
@@ -69,14 +71,7 @@ system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwa
 deviceID = gpu_manager()
 system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {deviceID} {ntmpi}')
 
-#----------- Analysis
-if args.native:
-    u = MDAnalysis.Universe('MD.tpr', 'MD.xtc')
-    receptor = u.select_atoms()
-    ligand = u.select_atoms()
-    native = contacts.Contacts(
-                            u,select = ('segid seg_2*', '(segid seg_0*) or (segid seg_1*)'),
-                            method='soft_cut',
-                            refgroup = (ligand, receptor),
-                            ).run(step =10)
-    np.savetxt('text.txt', native.timeseries)
+#------------- trj
+if args.trj:
+	system(f'echo \'Protein\nSystem\n\' | {args.gmx} trjconv -s MD.tpr -f MD.xtc -o trj.xtc -pbc mol -center')
+	deviceID = gpu_manager()
