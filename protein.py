@@ -24,21 +24,21 @@ parser.add_argument("-ff", type=str, choices=['charmm36m', 'oplsaa'], help="forc
 parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help="vsite --- default None", default = '')
 parser.add_argument("-d", "-distance", type=float, help="distance from solute --- default 1", default = 1)
 parser.add_argument("-bt", type=str, choices=['cubic', 'triclinic', 'dodecahedron', 'octahedron'], help="box shape")
-parser.add_argument("-mutation", action='store_true', help="Native Contact Analysis")
+#parser.add_argument("-mutation", action='store_true', help="Native Contact Analysis")
 parser.add_argument("-p", "--pool", type=int, help="number of process --- default 1", default = 1)
 parser.add_argument("-s", "--system", type=str, help="system PDB file")
 parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
 parser.add_argument("-r", type=str, help="residue to mutate - syntax \"A-588,B-577,C-23\"")
 parser.add_argument("-a", type=str, help="aminoacid to substitute, 3 letter, comma separate. IN ORDER - ex. \"ANS,PHE,ARG,TRP\"")
 parser.add_argument("-ntmpi", action='store_true', help="ntmpi 1")
-parser.add_argument("-trj", help="periodic boundary conditions adjustment")
+parser.add_argument("-trj", action='store_true', help="periodic boundary conditions adjustment")
 args = parser.parse_args()
 
 if args.ntmpi:
     ntmpi = "-ntmpi 1"
 else: ntmpi = ""
 
-if args.mutation:
+if args.r and args.a:
     mutation(args.system, args.r, args.a, args.system)
 
 if args.vsite:
