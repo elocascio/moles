@@ -43,13 +43,14 @@ with open(args.xvg) as xvg:
     plt.title(args.title)
     plt.xlabel(args.xlabel)
     plt.ylabel(args.ylabel)
-    plt.plot(a / int(args.divx), b / int(args.divy))
     if args.xlim:
         xlim = args.xlim
         plt.xlim(int(xlim.split("-")[0]), int(xlim.split("-")[1]))
     if args.ylim:
         ylim = args.ylim
         plt.ylim(int(ylim.split("-")[0]), int(ylim.split("-")[1]))
+    plt.plot(a / int(args.divx), b / int(args.divy))
+
     plt.savefig(args.filename, format = 'png', dpi = 600)        
     plt.close()
 
