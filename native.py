@@ -74,7 +74,7 @@ if args.multi == False:
                                         refgroup = (target_A, u.select_atoms(prot_str)) ,
                                         radius = 10 ,
                                         method= switch_functions ,
-                                        kwargs={'r_0':4.5, 'a':6, 'b':12}
+                                        kwargs={'r_0':6, 'a':6, 'b':12}
                                         ).run(step=args.step)
             #P.append([str(at.chainID) + str(at.residue.resnum) + str(at.residue.resname), np.mean(coord_P.timeseries[:, 1])])
             times.append(coord_P.timeseries[:,1])
