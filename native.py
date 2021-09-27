@@ -84,7 +84,7 @@ if args.multi == False:
         ax.set_title(f"{args.sel_A} vs {args.sel_B}", fontsize = 36)                
         plt.savefig(f'./abs_contacts_of_{args.sel_B}_with_{args.sel_A}.png', format = 'png')
         plt.close()
-        plt.plot(coord_P.timeseries[:,0], coord_P.timeseries[:,1]); plt.savefig('plot.png', fomrmat = 'png'); plt.close()
+        #plt.plot(coord_P.timeseries[:,0], coord_P.timeseries[:,1]); plt.savefig('plot.png', fomrmat = 'png'); plt.close()
         print('matrix plot saved')
     if args.sub:
         matrix = pd.DataFrame(times); matrix = matrix.fillna(0)  
