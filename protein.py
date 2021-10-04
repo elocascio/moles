@@ -30,12 +30,12 @@ parser.add_argument("-s", "--system", type=str, help="system PDB file")
 parser.add_argument("-f", "--report", type=str, help="path of report --- default $PWD/report.csv", default = '$PWD/report.csv')
 parser.add_argument("-r", type=str, help="residue to mutate - syntax \"A-588,B-577,C-23\"")
 parser.add_argument("-a", type=str, help="aminoacid to substitute, 3 letter, comma separate. IN ORDER - ex. \"ANS,PHE,ARG,TRP\"")
-parser.add_argument("-ntmpi", type=int, action='store_true', help="ntmpi")
+parser.add_argument("-ntmpi", action='store_true', help="ntmpi")
 parser.add_argument("-trj", action='store_true', help="periodic boundary conditions adjustment")
 args = parser.parse_args()
 
 if args.ntmpi:
-    ntmpi = args.ntmpi
+    ntmpi = "-ntmpi 8"
 else: ntmpi = ""
 
 if args.r and args.a:
