@@ -35,7 +35,7 @@ parser.add_argument("-trj", action='store_true', help="periodic boundary conditi
 args = parser.parse_args()
 
 if args.ntmpi:
-    ntmpi = "-ntmpi 4"
+    ntmpi = "-ntmpi 1"
 else: ntmpi = ""
 
 if args.r and args.a:
