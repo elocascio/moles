@@ -19,7 +19,7 @@ parser.add_argument("-gmx", type=str, help="gromacs --- default gmx", default = 
 parser.add_argument("-mdrun", type=str, help="mdrun --- default mdrun_tmpi", default = 'mdrun_tmpi')
 parser.add_argument("-nt", "--numthread", type=int, help="number of threads --- default 4", default = 4)
 parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation --- default 5 ns", default = 5)
-parser.add_argument("-gpu_id", "--deviceID", type=int, help="gpu device available", default = 0)
+parser.add_argument("-gpu_id", "--deviceID", type=str, help="gpu device available", default = '0')
 parser.add_argument("-step", type=float, help="step in ps --- default 0.002", default = 0.002)
 parser.add_argument("-ff", type=str, choices=['charmm36m', 'oplsaa'], help="force field")
 parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help="vsite --- default None", default = '')
