@@ -19,6 +19,7 @@ parser.add_argument("-gmx", type=str, help="gromacs --- default gmx", default = 
 parser.add_argument("-mdrun", type=str, help="mdrun --- default mdrun_tmpi", default = 'mdrun_tmpi')
 parser.add_argument("-nt", "--numthread", type=int, help="number of threads --- default 4", default = 4)
 parser.add_argument("-ns", "--nanoseconds", type=int, help="ns of simulation --- default 5 ns", default = 5)
+parser.add_argument("-gpu_id", "--deviceID", type=int, help="gpu device available", default = 0)
 parser.add_argument("-step", type=float, help="step in ps --- default 0.002", default = 0.002)
 parser.add_argument("-ff", type=str, choices=['charmm36m', 'oplsaa'], help="force field")
 parser.add_argument("-vsite", type=str, choices=['hydrogens', 'aromatic'], help="vsite --- default None", default = '')
@@ -33,10 +34,6 @@ parser.add_argument("-a", type=str, help="aminoacid to substitute, 3 letter, com
 parser.add_argument("-ntmpi", action='store_true', help="ntmpi")
 parser.add_argument("-trj", action='store_true', help="periodic boundary conditions adjustment")
 args = parser.parse_args()
-
-if args.ntmpi:
-    ntmpi = "-ntmpi 1"
-else: ntmpi = ""
 
 if args.r and args.a:
     mutation(args.system, args.r, args.a, args.system)
@@ -57,19 +54,19 @@ system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex
 deviceID = gpu_manager()
 mini_mdp = make_mdp(mdp = 'mini')
 system(f'{args.gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
-system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {deviceID} -v {ntmpi}')
+system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {args.deviceID} -v -tmpi {args.ntmpi}')
 
 #------------- EQUILIBRATION
 equi_mdp = make_mdp(mdp = 'equi')
 system(f'{args.gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {deviceID} -v {ntmpi}')
+system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {args.deviceID} -v -tmpi {args.ntmpi}')
 
 #------------- MD
 MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
 system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {deviceID} {ntmpi}')
+system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {args.deviceID} -tmpi {args.ntmpi}')
 
 #------------- trj
 if args.trj:
