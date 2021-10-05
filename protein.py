@@ -35,6 +35,10 @@ parser.add_argument("-ntmpi", action='store_true', help="ntmpi")
 parser.add_argument("-trj", action='store_true', help="periodic boundary conditions adjustment")
 args = parser.parse_args()
 
+if args.ntmpi:
+    ntmpi = "-ntmpi 2"
+else: ntmpi = ""
+
 if args.r and args.a:
     mutation(args.system, args.r, args.a, args.system)
 
@@ -54,19 +58,19 @@ system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex
 deviceID = gpu_manager()
 mini_mdp = make_mdp(mdp = 'mini')
 system(f'{args.gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
-system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {args.deviceID} -v -tmpi {args.ntmpi}')
+system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {args.deviceID} -v {ntmpi}')
 
 #------------- EQUILIBRATION
 equi_mdp = make_mdp(mdp = 'equi')
 system(f'{args.gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {args.deviceID} -v -tmpi {args.ntmpi}')
+system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {args.deviceID} -v {ntmpi}')
 
 #------------- MD
 MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
 system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {args.deviceID} -tmpi {args.ntmpi}')
+system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {args.deviceID} {ntmpi}')
 
 #------------- trj
 if args.trj:
