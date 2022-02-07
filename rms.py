@@ -40,10 +40,14 @@ if args.clust:
 if args.rmsd:
     u = mda.Universe(args.tpr, args.trr)
     selection = u.select_atoms(args.sele) # protein, name CA, backbone, name UNK
-    selection.write(f'reference_rmsd.pdb')
+    sele = '_'.join((args.sele).split()) # takes selection string and join with "_"
+    with mda.selections.gromacs.SelectionWriter(f'{sele}.ndx', mode = 'w') as ndx:
+        ndx.write(selection, name = sele)
+    sys(f'gmx editconf -f {args.tpr} -o ref_{sele}.pdb -n {sele}.ndx')
+
     with open('rmsd.dat', 'w') as dat:
         dat.write(f"""
-RMSD REFERENCE=reference_rmsd.pdb TYPE=OPTIMAL
+RMSD REFERENCE=ref_{sele}.pdb TYPE=OPTIMAL
 PRINT ARG=* FILE=rmsd STRIDE={args.stride}""")
 
     sys(f'plumed driver --mf_{args.trr[-3:]} {args.trr} --plumed rmsd.dat')
