@@ -7,7 +7,7 @@ from io import BytesIO
 def clean_xvg(xvg):
     a = []
     b = []
-    with open('clust-size.xvg') as xvg:
+    with open(xvg) as xvg:
         lines=xvg.readlines()
         for line in lines:
             if line.startswith('#') or line.startswith('@'):

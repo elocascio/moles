@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from var import colors
 import base64
 from io import BytesIO
+import argparse
 
 
 def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
@@ -25,8 +26,8 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
 
     print('contact analysis')
     u = MDAnalysis.Universe(pdb,xtc)
-    complexo = u.select_atoms('(protein) or (resname UNK)')
-    water = u.select_atoms('(around 10 resname UNK) and (resname SOL)')
+    complexo = u.select_atoms(f'(protein) or (resname {args.lig})')
+    water = u.select_atoms(f'(around 10 resname {args.lig}) and (resname SOL)')
     complexo = complexo + water
     unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
     for ts in u.trajectory:
@@ -100,4 +101,10 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     return string
 
 if __name__=='__main__':
-   contacts()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-lig", type=str, help="name of ligand --- default= UNK", default="UNK")
+    parser.add_argument("-pdb", type= str, help="file pdb gromacs --- default MD.pdb", default='MD.pdb')
+    parser.add_argument("-xtc", type= str, help="file xtc gromacs --- default MD.xtc", default='MD.xtc')
+    parser.add_argument("-step", type= int, help="value of step --- default 10", default='10')
+    args= parser.pars_args()
+    contacts(ligand = args.lig, pdb = args.pdb, xtc = args.xtc, step = args.step)
