@@ -76,26 +76,29 @@ def send_mail(destination, subject, content, attachment):
     )
     print('email sent')
 
-import nvsmi
-def gpu_manager():
-    ids = []
-    for process in nvsmi.get_gpu_processes():
-        gpu_id = int(str(process).split('gpu_id: ')[-1].split(' | ')[0])
-        ids.append(gpu_id)
-    print(ids, ids.count(1), ids.count(0))
-    if len(ids) > 0:
-        if ids.count(0) == 0:
-            return 0
-        elif ids.count(1) / ids.count(0) > 1 or ids.count(0) == 0:
-            return 0
-        elif ids.count(1) / ids.count(0) < 1 or ids.count(1) == 0:
-            return 1
-        else:
-            return np.random.randint(2)
-    elif len(ids) == 0:
-        return 0
-    else:
-        return np.random.randint(2)
+
+######################### LOOKING FOR SMTH SMARTER ######################################
+#import nvsmi
+#def gpu_manager():
+#    ids = []
+#    for process in nvsmi.get_gpu_processes():
+#        gpu_id = int(str(process).split('gpu_id: ')[-1].split(' | ')[0])
+#        ids.append(gpu_id)
+#    print(ids, ids.count(1), ids.count(0))
+#    if len(ids) > 0:
+#        if ids.count(0) == 0:
+#            return 0
+#        elif ids.count(1) / ids.count(0) > 1 or ids.count(0) == 0:
+#            return 0
+#        elif ids.count(1) / ids.count(0) < 1 or ids.count(1) == 0:
+#            return 1
+#        else:
+#            return np.random.randint(2)
+#    elif len(ids) == 0:
+#        return 0
+#    else:
+#        return np.random.randint(2)
+#########################################################################################
 
 import MDAnalysis
 from MDAnalysis.analysis import contacts
