@@ -106,5 +106,5 @@ if __name__=='__main__':
     parser.add_argument("-pdb", type= str, help="file pdb gromacs --- default MD.pdb", default='MD.pdb')
     parser.add_argument("-xtc", type= str, help="file xtc gromacs --- default MD.xtc", default='MD.xtc')
     parser.add_argument("-step", type= int, help="value of step --- default 10", default='10')
-    args= parser.pars_args()
+    args= parser.parse_args()
     contacts(ligand = args.lig, pdb = args.pdb, xtc = args.xtc, step = args.step)
