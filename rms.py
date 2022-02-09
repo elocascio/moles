@@ -20,6 +20,8 @@ parser.add_argument("-sele", type=str, help="select group charmm-like syntax")
  
 args = parser.parse_args()
 
+from Misc.moles import init
+init()
 
 if args.clust:
     sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n {args.ndx} -sz -cl -method {args.method} -cutoff {args.cutoff} << EOF
