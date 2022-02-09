@@ -13,8 +13,8 @@ parser.add_argument("-tpr",type=str, help="file tpr gromacs --- default MD.tpr",
 parser.add_argument("-ndx",type=str, help="file index gromacs --- default index.ndx", default='index.ndx')
 parser.add_argument("-method",type=str, help="Method for cluster determination: linkage, jarvis-patrick, monte-carlo, diagonalization, gromos --- default gromos",default='gromos')
 parser.add_argument("-cutoff",type=float, help="n of cutoff --- default 0.1", default=0.1)
-parser.add_argument("-fit", type=str, help="fit-least square group")
-parser.add_argument("-ogroup", type=str, help="ogroup-group output")
+parser.add_argument("-fit", type=str, help="select group charmm-like syntax for fit-least square group")
+parser.add_argument("-ogroup", type=str, help="select group charmm-like syntax for group output")
 parser.add_argument("-stride", type=str, help="frequency", default=10)
 parser.add_argument("-sele", type=str, help="select group charmm-like syntax") 
  
@@ -24,9 +24,17 @@ from Misc.moles import init
 init()
 
 if args.clust:
-    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n {args.ndx} -sz -cl -method {args.method} -cutoff {args.cutoff} << EOF
-    {args.fit}
-    {args.ogroup}
+    u = mda.Universe(args.tpr, args.trr)
+    fit = u.select_atoms(args.fit); fit_str = '_'.join((args.fit).split()) # protein, name CA, backbone, name UNK
+    ogroup = u.select_atoms(args.ogroup); ogroup_str = '_'.join((args.ogroup).split()) # takes selection string and join with "_"
+    
+    with mda.selections.gromacs.SelectionWriter(f'clust.ndx', mode = 'w') as ndx:
+        ndx.write(fit, name = fit_str)
+        ndx.write(ogroup, name = ogroup_str)
+
+    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n clust.ndx -sz -cl -method {args.method} -cutoff {args.cutoff} << EOF
+    0
+    1
     EOF''')
 
     n_clust,freq = clean_xvg('clust-size.xvg')
@@ -37,7 +45,7 @@ if args.clust:
     labels= np.round(freq/freq.sum()*100, 2)
     plt.legend(labels,title="CLUSTER %",bbox_to_anchor=(1, .7))
     plt.tight_layout()
-    fig.savefig(f'clust_{args.cutoff}_{args.method}.png',format='png', dpi=1600)
+    fig.savefig(f'clust_{args.cutoff}_{args.method}.png',format='png', dpi=900)
 
 if args.rmsd:
     u = mda.Universe(args.tpr, args.trr)
