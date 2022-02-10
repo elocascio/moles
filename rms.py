@@ -40,14 +40,13 @@ if args.clust:
 
     n_clust,freq = clean_xvg('cluster_size_{ogroup_str}.xvg')
 
-    fig = plt.figure(figsize=(5,7))
     plt.title(f'CLUSTER {fit_str}')
     plt.pie(freq)
     labels= np.round(freq/freq.sum()*100, 2)
-    plt.legend(labels,title="CLUSTER %",bbox_to_anchor=(1, .7))
+    plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
     plt.tight_layout()
-    fig.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
-
+    plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
+    plt.close()
 if args.rmsd:
     u = mda.Universe(args.tpr, args.trr)
     selection = u.select_atoms(args.sele) # protein, name CA, backbone, name UNK
@@ -71,12 +70,11 @@ PRINT ARG=* FILE=rmsd STRIDE={args.stride}""")
 
     time, rmsd = clean_xvg('rmsd')
 
-    fig = plt.figure(figsize=(11,7))
     plt.title(f'RMSD {args.sele}')
     plt.plot(time, rmsd)
     plt.xlabel('Time(ns)')
     plt.ylabel('RMSD (A°)')
     #plt.legend(labels,title="CLUSTER %",bbox_to_anchor=(1, .7))
     plt.tight_layout()
-    fig.savefig(f'RMSD_{sele}.png',format='png', dpi=900)
+    plt.savefig(f'RMSD_{sele}.png',format='png', dpi=900)
     
