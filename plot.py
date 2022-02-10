@@ -51,7 +51,7 @@ with open(args.xvg) as xvg:
         plt.ylim(int(ylim.split("-")[0]), int(ylim.split("-")[1]))
     plt.plot(a / int(args.divx), b / int(args.divy))
 
-    plt.savefig(args.filename, format = 'png', dpi = 600)        
+    plt.savefig(args.filename, format = 'png', dpi = 900)        
     plt.close()
 
 #if __name__=='__main__':

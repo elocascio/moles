@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import argparse
 from utils import clean_xvg
 import MDAnalysis as mda
+from Misc.moles import init
+from biopandas.pdb import PandasPdb as ppdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-clust", action="store_true", help="Calculate Clusters")
@@ -16,11 +18,11 @@ parser.add_argument("-cutoff",type=float, help="n of cutoff --- default 0.1", de
 parser.add_argument("-fit", type=str, help="select group charmm-like syntax for fit-least square group")
 parser.add_argument("-ogroup", type=str, help="select group charmm-like syntax for group output")
 parser.add_argument("-stride", type=str, help="frequency", default=10)
-parser.add_argument("-sele", type=str, help="select group charmm-like syntax") 
- 
+parser.add_argument("-sele", type=str, help="select group charmm-like syntax")
+parser.add_argument("-resname", type=str, help="resname for beta factor")
+
 args = parser.parse_args()
 
-from Misc.moles import init
 init()
 
 if args.clust:
@@ -32,20 +34,20 @@ if args.clust:
         ndx.write(fit, name = fit_str)
         ndx.write(ogroup, name = ogroup_str)
 
-    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n clust.ndx -sz -cl -method {args.method} -cutoff {args.cutoff} << EOF
+    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n clust.ndx -sz cluster_size_{ogroup_str}.xvg -cl cluster_repr_{ogroup_str}.pdb -method {args.method} -cutoff {args.cutoff} << EOF
     0
     1
     EOF''')
 
-    n_clust,freq = clean_xvg('clust-size.xvg')
+    n_clust,freq = clean_xvg('cluster_size_{ogroup_str}.xvg')
 
     fig = plt.figure(figsize=(5,7))
-    plt.title('CLUSTER')
+    plt.title(f'CLUSTER {fit_str}')
     plt.pie(freq)
     labels= np.round(freq/freq.sum()*100, 2)
     plt.legend(labels,title="CLUSTER %",bbox_to_anchor=(1, .7))
     plt.tight_layout()
-    fig.savefig(f'clust_{args.cutoff}_{args.method}.png',format='png', dpi=900)
+    fig.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
 
 if args.rmsd:
     u = mda.Universe(args.tpr, args.trr)
@@ -54,9 +56,15 @@ if args.rmsd:
     with mda.selections.gromacs.SelectionWriter(f'{sele}.ndx', mode = 'w') as ndx:
         ndx.write(selection, name = sele)
     sys(f'gmx editconf -f {args.tpr} -o ref_{sele}.pdb -n {sele}.ndx')
+    
+    if args.resname:
+        file = ppdb().read_pdb(f'ref_{sele}.pdb')
+        file.df['ATOM']['b_factor'] = np.where((file.df['ATOM']['residue_name'] == (args.resname)[:3]), 1, file.df['ATOM']['b_factor'])
+        file.to_pdb(path = f'ref_{sele}.pdb')
 
     with open('rmsd.dat', 'w') as dat:
         dat.write(f"""
+UNITS LENGTH=A TIME=ns
 RMSD REFERENCE=ref_{sele}.pdb TYPE=OPTIMAL
 PRINT ARG=* FILE=rmsd STRIDE={args.stride}""")
 
@@ -71,5 +79,5 @@ PRINT ARG=* FILE=rmsd STRIDE={args.stride}""")
     plt.ylabel('RMSD (A°)')
     #plt.legend(labels,title="CLUSTER %",bbox_to_anchor=(1, .7))
     plt.tight_layout()
-    fig.savefig(f'RMSD_{args.sele}.png',format='png', dpi=900)
+    fig.savefig(f'RMSD_{sele}.png',format='png', dpi=900)
     
