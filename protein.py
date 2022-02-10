@@ -74,5 +74,5 @@ system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {args.deviceID}
 
 #------------- trj
 if args.trj:
-	system(f'echo \'Protein\nSystem\n\' | {args.gmx} trjconv -s MD.tpr -f MD.xtc -o trj.xtc -pbc nojump -center')
+	system(f'echo \'System\' | {args.gmx} trjconv -s MD.tpr -f MD.xtc -o trjadj.xtc -pbc mol -ur compact')
 	deviceID = gpu_manager()
