@@ -92,3 +92,4 @@ def protein_contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
                                      kwargs={'r_0':2.5, 'a':8, 'b':12}
                                      ).run(step=100)
     P.append([str(at.chainID) + str(at.residue.resnum) + str(at.residue.resname), np.mean(coord_P.timeseries[:, 1])])
+
