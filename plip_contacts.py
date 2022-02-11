@@ -27,7 +27,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     print('contact analysis')
     u = MDAnalysis.Universe(pdb,xtc)
     complexo = u.select_atoms(f'(protein) or (resname {args.lig})')
-    water = u.select_atoms(f'(around 10 resname {args.lig}) and (resname SOL)')
+    water = u.select_atoms(f'(around 10 resname {args.lig}) and (resname SOL)') # WHAT IF IT IS TIP3??
     complexo = complexo + water
     unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
     for ts in u.trajectory:
