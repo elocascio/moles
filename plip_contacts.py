@@ -46,7 +46,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     ###############################################
 
     water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
-    complexo = complexo + water + ion
+    complexo = complexo + water + ion_group
     unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
     for ts in u.trajectory:
         if ts.time % step == 0:
