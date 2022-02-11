@@ -42,7 +42,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
         if resname in METAL_IONS:
             ion = resname
     print(f'found {ion}')
-    ion = u.select_atoms(f'resname {ion}')
+    ion_group = u.select_atoms(f'resname {ion}')
     ###############################################
 
     water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
@@ -88,7 +88,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             
             un = MDAnalysis.Universe('trajj.pdb')
             neg_atoms = un.select_atoms(f'(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
-            ion = un.select_atoms(f'resname {ion}')
+            ion_group = un.select_atoms(f'resname {ion}')
 
 
             metal_distance = np.linalg.norm(neg_atoms.positions - ion.positions, axis = 1); print(neg_atoms, ion);print(neg_atoms.positions, ion.positions, metal_distance)
