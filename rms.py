@@ -38,7 +38,7 @@ if args.clust:
     1
     EOF''')
 
-    n_clust,freq = clean_xvg('cluster_size_{ogroup_str}.xvg')
+    n_clust,freq = clean_xvg(f'cluster_size_{ogroup_str}.xvg')
 
     plt.title(f'CLUSTER {fit_str}')
     plt.pie(freq)
