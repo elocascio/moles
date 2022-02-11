@@ -34,12 +34,14 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     else:
         print("can't help you bro!")
         exit()
-    
+    print(f'water name: {wat}')
+
     ############# NEG ATOM SELECTION ###############
     neg_atoms = u.select_atoms('(resname {args.lig}) and (name O* N* S* Cl* F* Br* I*)')
     for resname in u.residues.resnames:
         if resname in METAL_IONS:
             ion = resname
+        print(f'found {ion}')
     ion = u.select_atoms(f'resname {ion}')
     ###############################################
 
@@ -48,6 +50,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
     for ts in u.trajectory:
         if ts.time % step == 0:
+            print(f'analyzing {ts.time} frame')
             complexo.write('trajj.pdb')
             mol = PDBComplex()
             mol.load_pdb('trajj.pdb')
@@ -101,6 +104,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             df = pd.DataFrame(coord, columns = ['residue', coord_type])
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
+            print(df)
             df[coord_type] = df[coord_type].apply(lambda x: x / (len(u.trajectory) / step))
             coord_dfs.append(df)
     
