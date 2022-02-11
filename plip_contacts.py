@@ -87,7 +87,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
                 WaterBridge.append([str(water_bridge.resnr) + str(water_bridge.restype), water_bridge.type])
             
             un = MDAnalysis.Universe('trajj.pdb')
-            neg_atoms = un.select_atoms('(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
+            neg_atoms = un.select_atoms(f'(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
             ion = un.select_atoms(f'resname {ion}')
 
 
