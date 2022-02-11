@@ -25,7 +25,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
 
     print('contact analysis')
     u = MDAnalysis.Universe(pdb,xtc)
-    complexo = u.select_atoms(f'(protein) or (resname {args.lig})')
+    complexo = u.select_atoms(f'(protein) or (resname {ligand})')
     
     if "TIP3" in u.residues.resnames:
         wat = "TIP3"
@@ -37,7 +37,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     print(f'water name: {wat}')
 
     ############# NEG ATOM SELECTION ###############
-    neg_atoms = u.select_atoms('(resname {args.lig}) and (name O* N* S* Cl* F* Br* I*)')
+    neg_atoms = u.select_atoms('(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
     for resname in u.residues.resnames:
         if resname in METAL_IONS:
             ion = resname
@@ -45,7 +45,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     ion = u.select_atoms(f'resname {ion}')
     ###############################################
 
-    water = u.select_atoms(f'(around 10 resname {args.lig}) and (resname {wat})') 
+    water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
     complexo = complexo + water + ion
     unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
     for ts in u.trajectory:
@@ -85,7 +85,12 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
 
             for water_bridge in my_interactions.water_bridges:
                 WaterBridge.append([str(water_bridge.resnr) + str(water_bridge.restype), water_bridge.type])
-        
+            
+            un = MDAnalysis.Universe('trajj.pdb')
+            neg_atoms = un.select_atoms('(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
+            ion = un.select_atoms(f'resname {ion}')
+
+
             metal_distance = np.linalg.norm(neg_atoms.positions - ion.positions, axis = 1); print(neg_atoms, ion);print(neg_atoms.positions, ion.positions, metal_distance)
             coordination_scores = (metal_distance < 3).astype(int); print(coordination_scores)
             for coordination_score in coordination_scores:
