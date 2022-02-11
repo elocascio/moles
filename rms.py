@@ -15,6 +15,7 @@ parser.add_argument("-method",type=str, help="Method for cluster determination: 
 parser.add_argument("-cutoff",type=float, help="n of cutoff --- default 0.1", default=0.1)
 parser.add_argument("-fit", type=str, help="select group charmm-like syntax for fit-least square group")
 parser.add_argument("-ogroup", type=str, help="select group charmm-like syntax for group output")
+parser.add_argument("-skip", type=str, help="skip frame")
 
 parser.add_argument("-rmsd", action="store_true", help="Calculate Clusters")
 parser.add_argument("-stride", type=str, help="frequency", default=10)
@@ -33,7 +34,7 @@ if args.clust:
         ndx.write(fit, name = fit_str)
         ndx.write(ogroup, name = ogroup_str)
 
-    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n clust.ndx -sz cluster_size_{fit_str}.xvg -cl cluster_repr_{fit_str}.pdb -method {args.method} -cutoff {args.cutoff} << EOF
+    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n clust.ndx -sz cluster_size_{fit_str}.xvg -cl cluster_repr_{fit_str}.pdb -method {args.method} -cutoff {args.cutoff} -skip {args.skip} << EOF
     0
     1
     EOF''')

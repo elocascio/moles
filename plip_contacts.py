@@ -1,17 +1,16 @@
-
-
 def switch(r, r_0=6,a=6,b=12):
     return (1-(r/r_0)**a)/(1-(r/r_0)**b)
 
 import MDAnalysis
 from plip.structure.preparation import PDBComplex
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from var import colors
+from var import colors, METAL_IONS
 import base64
 from io import BytesIO
 import argparse
-
+from glob import glob
 
 def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     Hydrophobic = []
@@ -27,7 +26,26 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     print('contact analysis')
     u = MDAnalysis.Universe(pdb,xtc)
     complexo = u.select_atoms(f'(protein) or (resname {args.lig})')
-    water = u.select_atoms(f'(around 10 resname {args.lig}) and (resname SOL)') # WHAT IF IT IS TIP3??
+    
+    if "TIP3" in u.residues.resnames:
+        wat = "TIP3"
+    elif "SOL" in u.residues.resnames:
+        wat = "SOL"
+    else:
+        print("can't help you bro!")
+        exit()
+    
+    ############# NEG ATOM SELECTION ###############
+    tpr = glob("*.tpr")
+    utpr = MDAnalysis.Universe(tpr[0])
+    neg_atoms = utpr.select_atoms('(resname {args.lig}) and (prop charge  < -0.8)')
+    for resname in utpr.residues.resnames:
+        if resname in METAL_IONS:
+            ion = resname
+
+    ###############################################
+
+    water = u.select_atoms(f'(around 10 resname {args.lig}) and (resname {wat})') 
     complexo = complexo + water
     unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
     for ts in u.trajectory:
@@ -67,7 +85,8 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             for water_bridge in my_interactions.water_bridges:
                 WaterBridge.append([str(water_bridge.resnr) + str(water_bridge.restype), water_bridge.type])
         
-    
+            np.linalg.norm(neg_atoms.positions - ion.position, axis = 1)
+
     for coord, coord_type in list(zip([Hydrophobic, PiStacking_T, PiStacking_P, SaltBridge, HBond, PiCation, WaterBridge], ['Hydrophobic', 'Pi_stacking_T', 'Pi_stacking_P', 'Salt_Bridge', 'H_bond', 'Pi_Cation', 'Water_Bridge'])):
         
         if coord in [HBond, WaterBridge]:
