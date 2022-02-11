@@ -91,10 +91,10 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             ion_group = un.select_atoms(f'resname {ion}')
 
 
-            metal_distance = np.linalg.norm(neg_atoms.positions - ion.positions, axis = 1); print(neg_atoms, ion);print(neg_atoms.positions, ion.positions, metal_distance)
+            metal_distance = np.linalg.norm(neg_atoms.positions - ion_group.positions, axis = 1); print(neg_atoms, ion_group);print(neg_atoms.positions, ion_group.positions, metal_distance)
             coordination_scores = (metal_distance < 3).astype(int); print(coordination_scores)
             for coordination_score in coordination_scores:
-                metal_coord.append([str(ion.resnums[0]) + str(ion.resnames[0]), coordination_score])
+                metal_coord.append([str(ion_group.resnums[0]) + str(ion_group.resnames[0]), coordination_score])
 
     for coord, coord_type in list(zip([Hydrophobic, PiStacking_T, PiStacking_P, SaltBridge, HBond, PiCation, WaterBridge, metal_coord], ['Hydrophobic', 'Pi_stacking_T', 'Pi_stacking_P', 'Salt_Bridge', 'H_bond', 'Pi_Cation', 'Water_Bridge', 'Metal_Coordination'])):
         
