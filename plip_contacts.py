@@ -86,8 +86,8 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             for water_bridge in my_interactions.water_bridges:
                 WaterBridge.append([str(water_bridge.resnr) + str(water_bridge.restype), water_bridge.type])
         
-            metal_distance = np.linalg.norm(neg_atoms.positions - ion.positions, axis = 1)
-            coordination_scores = (metal_distance < 3).astype(int)
+            metal_distance = np.linalg.norm(neg_atoms.positions - ion.positions, axis = 1); print(neg_atoms, ion);print(neg_atoms.positions, ion.positions, metal_distance)
+            coordination_scores = (metal_distance < 3).astype(int); print(coordination_scores)
             for coordination_score in coordination_scores:
                 metal_coord.append([str(ion.resnums[0]) + str(ion.resnames[0]), coordination_score])
 
