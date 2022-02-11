@@ -20,7 +20,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     HBond = []
     SaltBridge = []
     WaterBridge = []
-    
+    metal_coord = []
     coord_dfs = []
 
     print('contact analysis')
@@ -36,13 +36,11 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
         exit()
     
     ############# NEG ATOM SELECTION ###############
-    tpr = glob("*.tpr")
-    utpr = MDAnalysis.Universe(tpr[0])
-    neg_atoms = utpr.select_atoms('(resname {args.lig}) and (prop charge  < -0.8)')
-    for resname in utpr.residues.resnames:
+    neg_atoms = u.select_atoms('(resname {args.lig}) and (name O* N* S* Cl* F* Br* I*)')
+    for resname in u.residues.resnames:
         if resname in METAL_IONS:
             ion = resname
-
+    ion = u.select_atoms(f'resname {ion}')
     ###############################################
 
     water = u.select_atoms(f'(around 10 resname {args.lig}) and (resname {wat})') 
@@ -85,9 +83,12 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             for water_bridge in my_interactions.water_bridges:
                 WaterBridge.append([str(water_bridge.resnr) + str(water_bridge.restype), water_bridge.type])
         
-            np.linalg.norm(neg_atoms.positions - ion.position, axis = 1)
+            metal_distance = np.linalg.norm(neg_atoms.positions - ion.positions, axis = 1)
+            coordination_scores = (metal_distance < 3).astype(int)
+            for coordination_score in coordination_scores:
+                metal_coord.append([str(ion.resnums[0]) + str(ion.resnames[0]), coordination_score])
 
-    for coord, coord_type in list(zip([Hydrophobic, PiStacking_T, PiStacking_P, SaltBridge, HBond, PiCation, WaterBridge], ['Hydrophobic', 'Pi_stacking_T', 'Pi_stacking_P', 'Salt_Bridge', 'H_bond', 'Pi_Cation', 'Water_Bridge'])):
+    for coord, coord_type in list(zip([Hydrophobic, PiStacking_T, PiStacking_P, SaltBridge, HBond, PiCation, WaterBridge, metal_coord], ['Hydrophobic', 'Pi_stacking_T', 'Pi_stacking_P', 'Salt_Bridge', 'H_bond', 'Pi_Cation', 'Water_Bridge', 'Metal_Coordination'])):
         
         if coord in [HBond, WaterBridge]:
             df = pd.DataFrame(coord, columns=['residue', coord_type])
