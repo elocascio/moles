@@ -63,7 +63,7 @@ if args.rmsd:
 
     with open('rmsd.dat', 'w') as dat:
         dat.write(f"""
-UNITS LENGTH=A TIME=ns
+UNITS LENGTH=A
 RMSD REFERENCE=ref_{sele}.pdb TYPE=OPTIMAL
 PRINT ARG=* FILE=rmsd STRIDE={args.stride}""")
 
