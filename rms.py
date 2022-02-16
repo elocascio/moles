@@ -15,12 +15,12 @@ parser.add_argument("-method",type=str, help="Method for cluster determination: 
 parser.add_argument("-cutoff",type=float, help="n of cutoff --- default 0.1", default=0.1)
 parser.add_argument("-fit", type=str, help="select group charmm-like syntax for fit-least square group")
 parser.add_argument("-ogroup", type=str, help="select group charmm-like syntax for group output")
-parser.add_argument("-skip", type=str, help="skip frame")
+parser.add_argument("-skip", type=str, help="skip frame", default=10)
 
 parser.add_argument("-rmsd", action="store_true", help="Calculate Clusters")
 parser.add_argument("-stride", type=str, help="frequency", default=10)
-parser.add_argument("-sele", type=str, help="select group charmm-like syntax")
-parser.add_argument("-resname", type=str, help="resname for beta factor")
+parser.add_argument("-sele", type=str, help="select group charmm-like syntax for superimposition ex. \"name CA or resname LIG\"")
+parser.add_argument("-resname", type=str, help="resname for beta factor ex. LIG. Leave empty to calculate RMSD of all thing.")
 args = parser.parse_args()
 
 init()

@@ -187,5 +187,3 @@ def mutation(pdb, residues, mutation, pdb_out):
     cmd.set_wizard()
     cmd.save(pdb_out)
     return pdb_out
-
-

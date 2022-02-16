@@ -47,14 +47,14 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
 
     water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
     complexo = complexo + water + ion_group
-    unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0]
+    unk = u.select_atoms(f'resname {ligand}'); unk = unk.resids[0], unk_chain = unk.chainIDs[0]
     for ts in u.trajectory:
         if ts.time % step == 0:
             print(f'analyzing {ts.time} frame')
             complexo.write('trajj.pdb')
             mol = PDBComplex()
             mol.load_pdb('trajj.pdb')
-            UNK = f'{ligand}:B:{unk}'
+            UNK = f'{ligand}:{unk_chain}:{unk}'
             mol.analyze()
             my_interactions = mol.interaction_sets[UNK]
 
@@ -91,8 +91,8 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             ion_group = un.select_atoms(f'resname {ion}')
 
 
-            metal_distance = np.linalg.norm(neg_atoms.positions - ion_group.positions, axis = 1); print(neg_atoms, ion_group);print(neg_atoms.positions, ion_group.positions, metal_distance)
-            coordination_scores = (metal_distance < 3).astype(int); print(coordination_scores)
+            metal_distance = np.linalg.norm(neg_atoms.positions - ion_group.positions, axis = 1)
+            coordination_scores = (metal_distance < 3).astype(int)
             for coordination_score in coordination_scores:
                 metal_coord.append([str(ion_group.resnames[0]), coordination_score])
 
