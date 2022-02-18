@@ -95,7 +95,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             coordination_scores = (metal_distance < 3).astype(int)
             for coordination_score in coordination_scores:
                 metal_coord.append([str(ion_group.resnames[0]), coordination_score])
-
+            print(HBond)
     for coord, coord_type in list(zip([Hydrophobic, PiStacking_T, PiStacking_P, SaltBridge, HBond, PiCation, WaterBridge, metal_coord], ['Hydrophobic', 'Pi_stacking_T', 'Pi_stacking_P', 'Salt_Bridge', 'H_bond', 'Pi_Cation', 'Water_Bridge', 'Metal_Coordination'])):
         
         if coord in [HBond, WaterBridge]:
@@ -115,11 +115,11 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     
     df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0).any()]
     df_all = df_all.sort_values(by=['residue'])
-    df_all.to_csv('coord.csv')
+    df_all.to_csv(f'coord_{ligand}.csv')
     ax = df_all.plot.bar(stacked = True, color = colors)
     ax.legend(bbox_to_anchor=(1.01, 1), loc='best')
     ax.set_ylabel('coordination')
-    (ax.figure).savefig('coord.png', format = 'png', bbox_inches = 'tight')
+    (ax.figure).savefig('coord_{ligand}.png', format = 'png', bbox_inches = 'tight')
     
     figfile = BytesIO()
     (ax.figure).savefig(figfile, format='png', bbox_inches = 'tight')
