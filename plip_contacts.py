@@ -50,7 +50,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
     complexo = complexo + water + ion_group
     unk = u.select_atoms(f'resname {ligand}'); lig_id = unk.resids[0]; lig_chain = unk.chainIDs[0]
-    with progressbar.ProgressBar(max_value=len(u.trajectory)/step) as bar:
+    with progressbar.ProgressBar(max_value=(len(u.trajectory)/step)+1) as bar:
         for ts in u.trajectory:
             if ts.time % step == 0:
                 complexo.write('trajj.pdb')
