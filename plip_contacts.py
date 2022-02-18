@@ -11,6 +11,7 @@ import base64
 from io import BytesIO
 import argparse
 from glob import glob
+import progressbar
 
 def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     Hydrophobic = []
@@ -48,54 +49,54 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
     complexo = complexo + water + ion_group
     unk = u.select_atoms(f'resname {ligand}'); lig_id = unk.resids[0]; lig_chain = unk.chainIDs[0]
-    for ts in u.trajectory:
-        if ts.time % step == 0:
-            print(f'analyzing {ts.time} frame')
-            complexo.write('trajj.pdb')
-            mol = PDBComplex()
-            mol.load_pdb('trajj.pdb')
-            UNK = f'{ligand}:{lig_chain}:{lig_id}'
-            mol.analyze()
-            my_interactions = mol.interaction_sets[UNK]
+    with progressbar.ProgressBar(max_value=len(u.trajectory)/step) as bar:
+        for ts in u.trajectory:
+            if ts.time % step == 0:
+                complexo.write('trajj.pdb')
+                mol = PDBComplex()
+                mol.load_pdb('trajj.pdb')
+                UNK = f'{ligand}:{lig_chain}:{lig_id}'
+                mol.analyze()
+                my_interactions = mol.interaction_sets[UNK]
 
-            for hydrophob in my_interactions.hydrophobic_contacts:
-                Hydrophobic.append([str(hydrophob.resnr) + str(hydrophob.restype), switch(float(hydrophob.distance))])
-
-
-            for pi_stacking in my_interactions.pistacking:
-                if pi_stacking.type == 'T':
-                    PiStacking_T.append([str(pi_stacking.resnr) + str(pi_stacking.restype), switch(float(pi_stacking.distance), r_0=5.5)])
-                if pi_stacking.type == 'P':
-                    PiStacking_P.append([str(pi_stacking.resnr) + str(pi_stacking.restype), switch(float(pi_stacking.distance), r_0=5.5)])
-
-            for salt_bridge in my_interactions.saltbridge_lneg:
-                SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
-            for salt_bridge in my_interactions.saltbridge_pneg:
-                SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
-
-            for h_bond in my_interactions.hbonds_ldon:
-                HBond.append([str(h_bond.resnr) + str(h_bond.restype), str(h_bond.type)])
-            for h_bond in my_interactions.hbonds_pdon:
-                HBond.append([str(h_bond.resnr) + str(h_bond.restype), str(h_bond.type)])
-
-            for picat in my_interactions.pication_laro:
-                PiCation.append([str(picat.resnr) + str(picat.restype), switch(float(picat.distance), r_0=4)])
-            for picat in my_interactions.pication_paro:
-                PiCation.append([str(picat.resnr) + str(picat.restype), switch(float(picat.distance), r_0=4)])
-
-            for water_bridge in my_interactions.water_bridges:
-                WaterBridge.append([str(water_bridge.resnr) + str(water_bridge.restype), water_bridge.type])
-            
-            un = MDAnalysis.Universe('trajj.pdb')
-            neg_atoms = un.select_atoms(f'(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
-            ion_group = un.select_atoms(f'resname {ion}')
+                for hydrophob in my_interactions.hydrophobic_contacts:
+                    Hydrophobic.append([str(hydrophob.resnr) + str(hydrophob.restype), switch(float(hydrophob.distance))])
 
 
-            metal_distance = np.linalg.norm(neg_atoms.positions - ion_group.positions, axis = 1)
-            coordination_scores = (metal_distance < 3).astype(int)
-            for coordination_score in coordination_scores:
-                metal_coord.append([str(ion_group.resnames[0]), coordination_score])
-            print(HBond)
+                for pi_stacking in my_interactions.pistacking:
+                    if pi_stacking.type == 'T':
+                        PiStacking_T.append([str(pi_stacking.resnr) + str(pi_stacking.restype), switch(float(pi_stacking.distance), r_0=5.5)])
+                    if pi_stacking.type == 'P':
+                        PiStacking_P.append([str(pi_stacking.resnr) + str(pi_stacking.restype), switch(float(pi_stacking.distance), r_0=5.5)])
+
+                for salt_bridge in my_interactions.saltbridge_lneg:
+                    SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
+                for salt_bridge in my_interactions.saltbridge_pneg:
+                    SaltBridge.append([str(salt_bridge.resnr) + str(salt_bridge.restype), switch(float(salt_bridge.distance), r_0=5)])
+
+                for h_bond in my_interactions.hbonds_ldon:
+                    HBond.append([str(h_bond.resnr) + str(h_bond.restype), str(h_bond.type)])
+                for h_bond in my_interactions.hbonds_pdon:
+                    HBond.append([str(h_bond.resnr) + str(h_bond.restype), str(h_bond.type)])
+
+                for picat in my_interactions.pication_laro:
+                    PiCation.append([str(picat.resnr) + str(picat.restype), switch(float(picat.distance), r_0=4)])
+                for picat in my_interactions.pication_paro:
+                    PiCation.append([str(picat.resnr) + str(picat.restype), switch(float(picat.distance), r_0=4)])
+
+                for water_bridge in my_interactions.water_bridges:
+                    WaterBridge.append([str(water_bridge.resnr) + str(water_bridge.restype), water_bridge.type])
+
+                un = MDAnalysis.Universe('trajj.pdb')
+                neg_atoms = un.select_atoms(f'(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
+                ion_group = un.select_atoms(f'resname {ion}')
+
+
+                metal_distance = np.linalg.norm(neg_atoms.positions - ion_group.positions, axis = 1)
+                coordination_scores = (metal_distance < 3).astype(int)
+                for coordination_score in coordination_scores:
+                    metal_coord.append([str(ion_group.resnames[0]), coordination_score])
+                bar.update(u.trajectory.frame)
     for coord, coord_type in list(zip([Hydrophobic, PiStacking_T, PiStacking_P, SaltBridge, HBond, PiCation, WaterBridge, metal_coord], ['Hydrophobic', 'Pi_stacking_T', 'Pi_stacking_P', 'Salt_Bridge', 'H_bond', 'Pi_Cation', 'Water_Bridge', 'Metal_Coordination'])):
         
         if coord in [HBond, WaterBridge]:
@@ -113,7 +114,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             df[coord_type] = df[coord_type].apply(lambda x: x / (len(u.trajectory) / step))
             coord_dfs.append(df)
     
-    df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0).any()]
+    df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 5).any()]
     df_all = df_all.sort_values(by=['residue'])
     df_all.to_csv(f'coord_{ligand}.csv')
     ax = df_all.plot.bar(stacked = True, color = colors)
@@ -127,6 +128,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     figdata_png = base64.b64encode(figfile.getvalue()).decode()
     string = f'<img src="data:image/png;base64,{figdata_png}" /> '
     plt.close()
+    bar.finish()
     return string
 
 if __name__=='__main__':
