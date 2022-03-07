@@ -33,6 +33,9 @@ parser.add_argument("-r", type=str, help="residue to mutate - syntax \"A-588,B-5
 parser.add_argument("-a", type=str, help="aminoacid to substitute, 3 letter, comma separate. IN ORDER - ex. \"ANS,PHE,ARG,TRP\"")
 parser.add_argument("-ntmpi", action='store_true', help="ntmpi")
 parser.add_argument("-trj", action='store_true', help="periodic boundary conditions adjustment")
+parser.add_argument("-gpu", action='store_true', help="enable gpu")
+
+
 args = parser.parse_args()
 
 if args.ntmpi:
@@ -54,23 +57,26 @@ ions_mdp = make_mdp('ions')
 system(f'{args.gmx} grompp -f {ions_mdp} -c {args.system}_gmx.pdb -p topol.top -o Complex_b4ion.tpr -maxwarn 10 -quiet')
 system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex_4mini.pdb -neutral -conc 0.15 -p topol.top -quiet')
 
+if args.gpu:
+    gpu_id = f"-gpu_id {args.deviceID}"
+
 #------------ MINIMIZATION
 deviceID = gpu_manager()
 mini_mdp = make_mdp(mdp = 'mini')
 system(f'{args.gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
-system(f'{args.mdrun} -deffnm mini -nt {args.numthread} -gpu_id {args.deviceID} -v {ntmpi}')
+system(f'{args.mdrun} -deffnm mini -nt {args.numthread} {gpu_id} -v {ntmpi}')
 
 #------------- EQUILIBRATION
 equi_mdp = make_mdp(mdp = 'equi')
 system(f'{args.gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -deffnm equi -nt {args.numthread} -gpu_id {args.deviceID} -v {ntmpi}')
+system(f'{args.mdrun} -deffnm equi -nt {args.numthread} {gpu_id} -v {ntmpi}')
 
 #------------- MD
 MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
 system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10')
 deviceID = gpu_manager()
-system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} -gpu_id {args.deviceID} {ntmpi}')
+system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} {gpu_id} {ntmpi}')
 
 #------------- trj
 if args.trj:
