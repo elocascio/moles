@@ -64,7 +64,7 @@ if args.clust:
     
     time, clust = clean_xvg(f"cluster_id_{fit_str}.xvg")
     sns.heatmap([clust], cmap = colors[:n])
-    plt.xlabel(time[::len(time)/10])
+    plt.xticks(time[::len(time)/10])
     plt.savefig(f"cluster_map_ {fit_str}.png", format = 'png', dpi = 900)
 
 if args.rmsd:
