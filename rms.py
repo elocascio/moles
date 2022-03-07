@@ -1,3 +1,4 @@
+from tkinter import N
 import numpy as np 
 from os import system as sys
 import matplotlib.pyplot as plt
@@ -43,16 +44,18 @@ if args.clust:
     n_clust,freq = clean_xvg(f'cluster_size_{fit_str}.xvg')
     colors=["blue","orange","green","red","pink","purple","grey","cyan"]
     if len(freq) > 8:
+        n = 8
         plt.title(f'CLUSTER {fit_str}')
-        plt.pie(freq[:8], colors=colors[:8])
+        plt.pie(freq[:8], colors=colors[:N])
         labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
         plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
         plt.close()
     else:
+        n = len(freq)
         plt.title(f'CLUSTER {fit_str}')
-        plt.pie(freq, colors=colors[:len(freq)])
+        plt.pie(freq, colors=colors[:n])
         labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
@@ -60,7 +63,7 @@ if args.clust:
         plt.close()
     
     time, clust = clean_xvg(f"cluster_id_{fit_str}.xvg")
-    sns.heatmap([clust])
+    sns.heatmap([clust], cmap = colors[:n])
     plt.savefig(f"cluster_map_ {fit_str}.png", format = 'png', dpi = 900)
 
 if args.rmsd:
