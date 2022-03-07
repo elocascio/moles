@@ -61,7 +61,7 @@ if args.gpu:
     gpu_id = f"-gpu_id {args.deviceID}"
 
 #------------ MINIMIZATION
-deviceID = gpu_manager()
+#deviceID = gpu_manager()
 mini_mdp = make_mdp(mdp = 'mini')
 system(f'{args.gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
 system(f'{args.mdrun} -deffnm mini -nt {args.numthread} {gpu_id} -v {ntmpi}')
