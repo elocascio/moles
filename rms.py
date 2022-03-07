@@ -46,7 +46,7 @@ if args.clust:
     if len(freq) > 8:
         n = 8
         plt.title(f'CLUSTER {fit_str}')
-        plt.pie(freq[:8], colors=colors[:N])
+        plt.pie(freq[:8], colors=colors[:n])
         labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
