@@ -6,6 +6,7 @@ from utils import clean_xvg
 import MDAnalysis as mda
 from Misc.moles import init
 from biopandas.pdb import PandasPdb as ppdb
+import seaborn as sns
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-tpr",type=str, help="file tpr gromacs --- default MD.tpr", default= 'MD.tpr', required=True)
@@ -34,7 +35,7 @@ if args.clust:
         ndx.write(fit, name = fit_str)
         ndx.write(ogroup, name = ogroup_str)
 
-    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n clust.ndx -sz cluster_size_{fit_str}.xvg -cl cluster_repr_{fit_str}.pdb -method {args.method} -cutoff {args.cutoff} -skip {args.skip} << EOF
+    sys(f'''gmx cluster -f {args.trr} -s {args.tpr} -n clust.ndx -sz cluster_size_{fit_str}.xvg -clid cluster_id_{fit_str}.xvg -cl cluster_repr_{fit_str}.pdb -method {args.method} -cutoff {args.cutoff} -skip {args.skip} << EOF
     0
     1
     EOF''')
@@ -48,6 +49,11 @@ if args.clust:
     plt.tight_layout()
     plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
     plt.close()
+
+    time, clust = clean_xvg(f"cluster_id_{fit_str}.xvg")
+    sns.heatmap([clust])
+    plt.savefig(f"cluster_map_ {fit_str}.png", format = 'png', dpi = 900)
+    
 if args.rmsd:
     u = mda.Universe(args.tpr, args.trr)
     selection = u.select_atoms(args.sele) # protein, name CA, backbone, name UNK
