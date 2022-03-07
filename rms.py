@@ -7,7 +7,6 @@ from utils import clean_xvg
 import MDAnalysis as mda
 from Misc.moles import init
 from biopandas.pdb import PandasPdb as ppdb
-import seaborn as sns
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-tpr",type=str, help="file tpr gromacs --- default MD.tpr", default= 'MD.tpr', required=True)
@@ -50,7 +49,7 @@ if args.clust:
         labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
-        plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
+        plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png', format='png', dpi=900)
         plt.close()
     else:
         n = len(freq)
@@ -59,13 +58,17 @@ if args.clust:
         labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
-        plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
+        plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png', format='png', dpi=900)
         plt.close()
     
     time, clust = clean_xvg(f"cluster_id_{fit_str}.xvg")
-    sns.heatmap([clust], cmap = colors[:n])
-    plt.xticks(time[::int(len(time)/10)])
-    plt.savefig(f"cluster_map_ {fit_str}.png", format = 'png', dpi = 900)
+    fig, ax = plt.subplots(figsize=(18, 5))
+    ax.imshow([clust,clust,clust], cmap = "tab10")
+    ax.set_title("Cluster")
+    ax.set_xticks([0,len(clust)/2, len(clust)])
+    ax.set_xticklabels([0, time[-1]/2000, time[-1]/1000])
+    plt.savefig(f"cluster_map_{fit_str}.png", format = 'png', dpi = 900)
+    plt.close()
 
 if args.rmsd:
     u = mda.Universe(args.tpr, args.trr)
