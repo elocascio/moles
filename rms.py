@@ -66,7 +66,7 @@ if args.clust:
     ax.imshow([clust,clust,clust], cmap = "tab10")
     ax.set_title("Cluster")
     ax.set_xticks([0,len(clust)/2, len(clust)])
-    ax.set_xticklabels([0, int(time[-1]/2000), int(time[-1]/1000)])
+    ax.set_xticklabels([0, round(time[-1]/2000), round(time[-1]/1000)])
     plt.savefig(f"cluster_map_{fit_str}.png", format = 'png', dpi = 900)
     plt.close()
 
