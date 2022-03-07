@@ -69,16 +69,16 @@ system(f'{args.mdrun} -deffnm mini -nt {args.numthread} {gpu_id} -v {ntmpi}')
 #------------- EQUILIBRATION
 equi_mdp = make_mdp(mdp = 'equi')
 system(f'{args.gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10')
-deviceID = gpu_manager()
+#deviceID = gpu_manager()
 system(f'{args.mdrun} -deffnm equi -nt {args.numthread} {gpu_id} -v {ntmpi}')
 
 #------------- MD
 MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
 system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10')
-deviceID = gpu_manager()
+#deviceID = gpu_manager()
 system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} {gpu_id} {ntmpi}')
 
 #------------- trj
 if args.trj:
 	system(f'echo \'System\' | {args.gmx} trjconv -s MD.tpr -f MD.xtc -o trjadj.xtc -pbc mol -ur compact')
-	deviceID = gpu_manager()
+#	deviceID = gpu_manager()
