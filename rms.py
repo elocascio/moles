@@ -41,19 +41,28 @@ if args.clust:
     EOF''')
 
     n_clust,freq = clean_xvg(f'cluster_size_{fit_str}.xvg')
-
-    plt.title(f'CLUSTER {fit_str}')
-    plt.pie(freq)
-    labels= np.round(freq/freq.sum()*100, 2)
-    plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
-    plt.tight_layout()
-    plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
-    plt.close()
-
+    colors=["blue","orange","green","red","pink","purple","grey","cyan"]
+    if len(freq) > 8:
+        plt.title(f'CLUSTER {fit_str}')
+        plt.pie(freq[:8], colors=colors[:8])
+        labels= np.round(freq/freq.sum()*100, 2)
+        plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
+        plt.tight_layout()
+        plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
+        plt.close()
+    else:
+        plt.title(f'CLUSTER {fit_str}')
+        plt.pie(freq, colors=colors[:len(freq)])
+        labels= np.round(freq/freq.sum()*100, 2)
+        plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
+        plt.tight_layout()
+        plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png',format='png', dpi=900)
+        plt.close()
+    
     time, clust = clean_xvg(f"cluster_id_{fit_str}.xvg")
     sns.heatmap([clust])
     plt.savefig(f"cluster_map_ {fit_str}.png", format = 'png', dpi = 900)
-    
+
 if args.rmsd:
     u = mda.Universe(args.tpr, args.trr)
     selection = u.select_atoms(args.sele) # protein, name CA, backbone, name UNK
