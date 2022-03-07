@@ -59,6 +59,7 @@ system(f'echo \'SOL\' | {args.gmx} -quiet genion -s Complex_b4ion.tpr -o Complex
 
 if args.gpu:
     gpu_id = f"-gpu_id {args.deviceID}"
+else: gpu_id = ""
 
 #------------ MINIMIZATION
 #deviceID = gpu_manager()
