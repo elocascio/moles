@@ -62,9 +62,9 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     unk = u.select_atoms(f'resname {ligand}'); lig_id = unk.resids[0]; lig_chain = unk.chainIDs[0]
 
     counter = 1
-    with progressbar.ProgressBar(max_value=len(u.trajectory)) as bar:
+    with progressbar.ProgressBar(max_value=u.trajectory.n_frames) as bar:
         for ts in u.trajectory:
-            if ts.time % step == 0:
+            if ts.frame % step == 0:
                 complexo.write('trajj.pdb')
                 mol = PDBComplex()
                 mol.load_pdb('trajj.pdb')
@@ -94,7 +94,6 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
                     df[next(gen)] = scores
                 df = pd.DataFrame((prot_list, df.sum(axis = 1))).T
                 df[1] = df[1].astype(float)
-                print(df)
                 df = df.groupby(0).mean()
                 Hydrophobic = pd.concat([Hydrophobic, df])
 ################# HYDROPHOBIC ########################
@@ -184,24 +183,32 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             aggregation = {coord_type: 'count'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / (len(u.trajectory) / step))
+            df[coord_type] = df[coord_type].apply(lambda x: x / (u.trajectory.n_frames / step))
+            coord_dfs.append(df)
+        elif coord_type in "Hydrophobic":
+            df = pd.DataFrame(coord, columns = ['residue', coord_type])
+            aggregation = {coord_type: 'sum'}
+            df = df.groupby(df['residue']).aggregate(aggregation)
+            print(df)
+            df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
             coord_dfs.append(df)
         else: 
             df = pd.DataFrame(coord, columns = ['residue', coord_type])
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / (len(u.trajectory) / step))
+            df[coord_type] = df[coord_type].apply(lambda x: x / (u.trajectory.n_frames / step))
             coord_dfs.append(df)
     
-    df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 5).any()]
+    df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0.2).any()]
     df_all = df_all.sort_values(by=['residue'])
     df_all.to_csv(f'coord_{ligand}.csv')
     ax = df_all.plot.bar(stacked = True, color = colors)
+    ax.set_ylim(top=4)
     ax.legend(bbox_to_anchor=(1.01, 1), loc='best')
     ax.set_ylabel('coordination')
     (ax.figure).savefig(f'coord_{ligand}.png', format = 'png', bbox_inches = 'tight')
-    
+
     figfile = BytesIO()
     (ax.figure).savefig(figfile, format='png', bbox_inches = 'tight')
     figfile.seek(0)

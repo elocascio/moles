@@ -7,6 +7,7 @@ from utils import clean_xvg
 import MDAnalysis as mda
 from Misc.moles import init
 from biopandas.pdb import PandasPdb as ppdb
+import matplotlib as mpl
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-tpr",type=str, help="file tpr gromacs --- default MD.tpr", default= 'MD.tpr', required=True)
@@ -40,12 +41,19 @@ if args.clust:
     1
     EOF''')
 
+
+    cmap = mpl.colors.ListedColormap(["blue","orange","green","red","pink","purple","grey","cyan"])
+
+    bounds = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5]
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+
     n_clust,freq = clean_xvg(f'cluster_size_{fit_str}.xvg')
     colors=["blue","orange","green","red","pink","purple","grey","cyan"]
     if len(freq) > 8:
         n = 8
         plt.title(f'CLUSTER {fit_str}')
         plt.pie(freq[:8], colors=colors[:n])
+#        plt.pie(freq[:8], colors = plt.cm.tab10.colors)
         labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
@@ -54,7 +62,7 @@ if args.clust:
     else:
         n = len(freq)
         plt.title(f'CLUSTER {fit_str}')
-        plt.pie(freq, colors=colors[:n])
+        plt.pie(freq[:8], colors=colors[:n])
         labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
@@ -63,7 +71,7 @@ if args.clust:
     
     time, clust = clean_xvg(f"cluster_id_{fit_str}.xvg")
     fig, ax = plt.subplots(figsize=(18, 5))
-    ax.imshow([clust,clust,clust], cmap = "tab10")
+    ax.imshow([clust,clust,clust], cmap = cmap, norm= norm)
     ax.set_title("Cluster")
     ax.set_xticks([0,len(clust)/2, len(clust)])
     ax.set_xticklabels([0, round(time[-1]/2000), round(time[-1]/1000)])
