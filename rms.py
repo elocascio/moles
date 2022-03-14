@@ -55,7 +55,7 @@ if args.clust:
         others = np.sum(freq[7:])
         freq_new = freq[:7]; print(freq_new)
         freq_new = np.append(freq_new, others); print(freq_new)
-        plt.pie(freq_new, colors=colors[:n])
+        plt.pie(freq_new, colors=colors[:8])
         labels = []
         for ind, q in list(zip(range(len(freq_new)), freq_new)):
             if ind < 7:
