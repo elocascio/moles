@@ -49,11 +49,11 @@ if args.clust:
 
     n_clust,freq = clean_xvg(f'cluster_size_{fit_str}.xvg')
     colors=["blue","orange","green","red","pink","purple","grey","cyan"]
-    if len(freq) > 8:
-        n = 8
+    if len(freq) > 7:
+        n = 7
         plt.title(f'CLUSTER {fit_str}')
-        others = np.sum(freq[8:])
-        freq_new = freq[:8]; print(freq_new)
+        others = np.sum(freq[7:])
+        freq_new = freq[:7]; print(freq_new)
         freq_new = np.append(freq_new, others); print(freq_new)
         plt.pie(freq_new, colors=colors[:n])
         labels = []
