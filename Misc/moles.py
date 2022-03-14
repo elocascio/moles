@@ -37,7 +37,7 @@ MOLEcular dynamics Suite
                           `::.  \   `::. !'                                
                            _.`::.\     ::                                  
                         .-~_____:~~    :'                                  
-                        ~~~  .-'__..-~'         THE MOLES TEAM                         
+                        ~~~  .-'__..-~'     THE MOLES TEAM                         
                              ~~~
 """)
   elif rand == 1:

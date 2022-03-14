@@ -52,15 +52,23 @@ if args.clust:
     if len(freq) > 8:
         n = 8
         plt.title(f'CLUSTER {fit_str}')
+        others = np.sum(freq[8:])
+        freq_new = freq[:8]; np.append(freq, others)
         plt.pie(freq[:8], colors=colors[:n])
-#        plt.pie(freq[:8], colors = plt.cm.tab10.colors)
-        labels= np.round(freq/freq.sum()*100, 2)
+        labels = []
+        for ind, q in list(zip(range(len(freq_new)), freq_new)):
+            if ind < 7:
+                labels.append(f"{ind + 1}: {np.round(q/freq_new.sum()*100, 2)}")
+            else:  labels.append(f"OTHERS: {np.round(q/freq_new.sum()*100, 2)}")
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
         plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png', format='png', dpi=900)
         plt.close()
     else:
         n = len(freq)
+        labels = []
+        for ind, q in list(zip(range(n), freq)):
+            labels.append(f"{ind + 1}: {np.round(q/freq.sum()*100, 2)}")
         plt.title(f'CLUSTER {fit_str}')
         plt.pie(freq[:8], colors=colors[:n])
         labels= np.round(freq/freq.sum()*100, 2)
