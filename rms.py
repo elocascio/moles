@@ -53,7 +53,8 @@ if args.clust:
         n = 8
         plt.title(f'CLUSTER {fit_str}')
         others = np.sum(freq[8:])
-        freq_new = freq[:8]; freq_new = np.append(freq_new, others)
+        freq_new = freq[:8]; print(freq_new)
+        freq_new = np.append(freq_new, others); print(freq_new)
         plt.pie(freq_new, colors=colors[:n])
         labels = []
         for ind, q in list(zip(range(len(freq_new)), freq_new)):
