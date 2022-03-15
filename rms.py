@@ -72,7 +72,6 @@ if args.clust:
             labels.append(f"{ind + 1}: {np.round(q/freq.sum()*100, 2)}")
         plt.title(f'CLUSTER {fit_str}')
         plt.pie(freq[:8], colors=colors[:n])
-        labels= np.round(freq/freq.sum()*100, 2)
         plt.legend(labels[:10],title="CLUSTER %",bbox_to_anchor=(1, .7))
         plt.tight_layout()
         plt.savefig(f'clust_{fit_str}_{args.cutoff}_{args.method}.png', format='png', dpi=900)
