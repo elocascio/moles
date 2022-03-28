@@ -65,13 +65,13 @@ else: gpu_id = ""
 #deviceID = gpu_manager()
 mini_mdp = make_mdp(mdp = 'mini')
 system(f'{args.gmx} grompp -f {mini_mdp} -c Complex_4mini.pdb -r Complex_4mini.pdb -p topol.top -o mini.tpr -maxwarn 10')
-system(f'{args.mdrun} -deffnm mini -nt {args.numthread} {gpu_id} -v {args.ntmpi}')
+system(f'{args.mdrun} -deffnm mini -nt {args.numthread} {gpu_id} -v 1')
 
 #------------- EQUILIBRATION
 equi_mdp = make_mdp(mdp = 'equi')
 system(f'{args.gmx} grompp -f {equi_mdp} -c mini.gro -r mini.gro -p topol.top -o equi.tpr -maxwarn 10')
 #deviceID = gpu_manager()
-system(f'{args.mdrun} -deffnm equi -nt {args.numthread} {gpu_id} -v {args.ntmpi}')
+system(f'{args.mdrun} -deffnm equi -nt {args.numthread} {gpu_id} -v 1')
 
 #------------- MD
 MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
