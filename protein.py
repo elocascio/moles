@@ -77,7 +77,7 @@ system(f'{args.mdrun} -deffnm equi -nt {args.numthread} {gpu_id} -v 1')
 MD_mdp = make_mdp(mdp = 'MD', ns = args.nanoseconds, dt = args.step)
 system(f'{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10')
 #deviceID = gpu_manager()
-system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} {gpu_id} {args.ntmpi}')
+system(f'{args.mdrun} -v -deffnm MD -nt {args.numthread} {gpu_id} -ntmpi {args.ntmpi}')
 
 #------------- trj
 if args.trj:
