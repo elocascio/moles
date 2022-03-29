@@ -109,11 +109,11 @@ PRINT ARG=* FILE=rmsd STRIDE={args.stride}""")
 
     time, rmsd = clean_xvg('rmsd')
 
-    plt.title(f'RMSD {args.sele}')
+    plt.title(f'RMSD {args.resname}')
     plt.plot(time, rmsd)
     plt.xlabel('Time(ns)')
     plt.ylabel('RMSD (A°)')
     #plt.legend(labels,title="CLUSTER %",bbox_to_anchor=(1, .7))
     plt.tight_layout()
-    plt.savefig(f'RMSD_{sele}.png',format='png', dpi=900)
+    plt.savefig(f'RMSD_{args.resname}.png',format='png', dpi=900)
     
