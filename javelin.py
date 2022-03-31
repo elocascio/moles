@@ -23,8 +23,7 @@ while True:
                 cpt = "-cpi"
                 print("checkpoint found!")
 
-            sh.write(f"""
-#!/bin/bash
+            sh.write(f"""#!/bin/bash
 #SBATCH -A IscrC_INSIDE1
 #SBATCH -p m100_usr_prod
 #SBATCH --qos=m100_qos_dbg
