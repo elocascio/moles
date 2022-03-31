@@ -3,6 +3,7 @@ from os import getcwd
 from os.path import isfile
 import subprocess
 from time import sleep
+from os import system
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-name", type=str, help="job name")
@@ -45,3 +46,5 @@ cd {folder}
 export  OMP_NUM_THREADS=32
 mdrun_thread_mpi -v -deffnm MD {cpt}
 """)
+    system("sbatch m100.sh")
+    sleep(5)    
