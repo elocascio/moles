@@ -78,7 +78,7 @@ if args.clust:
         plt.close()
     
     time, clust = clean_xvg(f"cluster_id_{fit_str}.xvg")
-    fig, ax = plt.subplots(figsize=(18, 5))
+    fig, ax = plt.subplots()
     ax.imshow([clust,clust,clust], cmap = cmap, norm= norm)
     ax.set_title("Cluster")
     ax.set_xticks([0,len(clust)/2, len(clust)])
