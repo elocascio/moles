@@ -103,11 +103,11 @@ if args.rmsd:
         dat.write(f"""
 UNITS LENGTH=A
 RMSD REFERENCE=ref_{sele}.pdb TYPE=OPTIMAL
-PRINT ARG=* FILE=rmsd_{args.resname} STRIDE={args.stride}""")
+PRINT ARG=* FILE=rmsd_{'_'.join((args.resname).split())} STRIDE={args.stride}""")
 
     sys(f'plumed driver --mf_{args.trr[-3:]} {args.trr} --plumed rmsd.dat')
 
-    time, rmsd = clean_xvg(f"rmsd_{args.resname}")
+    time, rmsd = clean_xvg(f"rmsd_{'_'.join((args.resname).split())}")
 
     plt.title(f'RMSD {args.resname}')
     plt.plot(time, rmsd)
