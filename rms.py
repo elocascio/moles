@@ -107,7 +107,7 @@ PRINT ARG=* FILE=rmsd_{args.resname} STRIDE={args.stride}""")
 
     sys(f'plumed driver --mf_{args.trr[-3:]} {args.trr} --plumed rmsd.dat')
 
-    time, rmsd = clean_xvg("rmsd_{args.resname}")
+    time, rmsd = clean_xvg(f"rmsd_{args.resname}")
 
     plt.title(f'RMSD {args.resname}')
     plt.plot(time, rmsd)
