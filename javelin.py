@@ -7,6 +7,8 @@ from os import system
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-name", type=str, help="job name")
+parser.add_argument("-nt", type=int, help="cores", default=24)
+
 args = parser.parse_args()
 
 folder = getcwd(); print(folder)
@@ -29,7 +31,7 @@ while True:
 #SBATCH --qos=m100_qos_dbg
 #SBATCH --time 2:00:00     # format: HH:MM:SS
 #SBATCH -N 1                # 1 node
-#SBATCH --ntasks-per-node=32 # 8 tasks out of 128
+#SBATCH --ntasks-per-node={args.nt} # 8 tasks out of 128
 #SBATCH --cpus-per-task=1
 #SBATCH --gres=gpu:1        # 1 gpus per node out of 4
 #SBATCH --mem=7100          # memory per node out of 246000MB
@@ -42,7 +44,7 @@ module load profile/lifesc
 module load autoload gromacs/2021.4
 
 cd {folder}
-export  OMP_NUM_THREADS=32
+export  OMP_NUM_THREADS={args.nt}
 mdrun_thread_mpi -v -deffnm MD {cpt}
 """)
     system("sbatch m100.sh")
