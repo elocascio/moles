@@ -8,7 +8,8 @@ from os import system
 parser = argparse.ArgumentParser()
 parser.add_argument("-name", type=str, help="job name")
 parser.add_argument("-nt", type=int, help="cores", default=24)
-
+parser.add_argument("-user", type=str, help="username", default="elocasci")
+parser.add_argument("-email", type=str, help="email", default="elocascio@unicatt.it")
 args = parser.parse_args()
 
 folder = getcwd(); print(folder)
@@ -16,9 +17,11 @@ cpt = ""
 
 
 while True:
-    qme = ((subprocess.Popen( ["squeue", "-u" ,"elocasci"], stdout=subprocess.PIPE ).communicate()[0]).decode("ascii")).split()
+    qme = ((subprocess.Popen( ["squeue", "-u" ,args.user], stdout=subprocess.PIPE ).communicate()[0]).decode("ascii")).split()
     if args.name in qme:
+        print(f"found {args.name} in {qme}")
         sleep(120)
+        continue
     else:
         with open("m100.sh", "w") as sh:
             if isfile("MD.cpt"):
@@ -37,7 +40,7 @@ while True:
 #SBATCH --mem=7100          # memory per node out of 246000MB
 #SBATCH --job-name={args.name}
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=ettore.locascio@uinicatt.it
+#SBATCH --mail-user=args.email
 
 module load profile/lifesc
 
@@ -48,4 +51,4 @@ export  OMP_NUM_THREADS={args.nt}
 mdrun_thread_mpi -v -deffnm MD {cpt}
 """)
     system("sbatch m100.sh")
-    sleep(5)    
+    sleep(1800)    
