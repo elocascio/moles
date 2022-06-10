@@ -53,7 +53,10 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     ###############################################
 
     water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
-    complexo = complesso + water + ion_group; comp_ion = complesso + ion_group
+    if ion != None:
+        complexo = complesso + water + ion_group; comp_ion = complesso + ion_group
+    else:
+        complexo = complesso + water
 ##################################### dictionaries #########################################################
     res_list = []
     for numres, nameres in list(zip(comp_ion.resnums, comp_ion.resnames)): res_list.append(str(numres)+ str(nameres))
