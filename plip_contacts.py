@@ -60,10 +60,10 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
 ##################################### dictionaries #########################################################
     res_list = []
     if ion != None:
-        for numres, nameres in list(zip(comp_ion.resnums, comp_ion.resnames)): res_list.append(str(numres)+ str(nameres))
+        for numres, nameres in list(zip(comp_ion.resnums, comp_ion.resnames)): res_list.append(str(numres)+ str(nameres)):
             dic = {key : [] for key in res_list}
     else:
-        for numres, nameres in list(zip(complexo.resnums, complexo.resnames)): res_list.append(str(numres)+ str(nameres))
+        for numres, nameres in list(zip(complexo.resnums, complexo.resnames)): res_list.append(str(numres)+ str(nameres)):
             dic = {key : [] for key in res_list}
     Hydrophobic_dic, PiStacking_dic, PiCation_dic, HBond_dic, SaltBridge_dic = [dic] * 5
 ###########################################################################################################
