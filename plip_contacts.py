@@ -42,12 +42,13 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     print(f'water name: {wat}')
 
     ############# NEG ATOM SELECTION ###############
+    ion = None
     neg_atoms = u.select_atoms('(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
     for resname in u.residues.resnames:
         if resname in METAL_IONS:
             ion = resname
             print(f'found {ion}')
-    if ion:
+    if ion != None:
         ion_group = u.select_atoms(f'resname {ion}')
     ###############################################
 
@@ -74,7 +75,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
                 my_interactions = mol.interaction_sets[UNK]
 
 ############### METAL COORDINATION #################
-                if ion:
+                if ion != None:
                     un = MDAnalysis.Universe('trajj.pdb')
                     neg_atoms = un.select_atoms(f'(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
                     ion_group = un.select_atoms(f'resname {ion}')
