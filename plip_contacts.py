@@ -46,8 +46,9 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     for resname in u.residues.resnames:
         if resname in METAL_IONS:
             ion = resname
-    print(f'found {ion}')
-    ion_group = u.select_atoms(f'resname {ion}')
+        print(f'found {ion}')
+    if ion:
+        ion_group = u.select_atoms(f'resname {ion}')
     ###############################################
 
     water = u.select_atoms(f'(around 10 resname {ligand}) and (resname {wat})') 
@@ -73,13 +74,14 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
                 my_interactions = mol.interaction_sets[UNK]
 
 ############### METAL COORDINATION #################
-                un = MDAnalysis.Universe('trajj.pdb')
-                neg_atoms = un.select_atoms(f'(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
-                ion_group = un.select_atoms(f'resname {ion}')
-                metal_distance = np.linalg.norm(neg_atoms.positions - ion_group.positions, axis = 1)
-                coordination_scores = (metal_distance < 3).astype(int)
-                for coordination_score in coordination_scores:
-                    metal_coord.append([str(ion_group.resnames[0]), coordination_score])
+                if ion:
+                    un = MDAnalysis.Universe('trajj.pdb')
+                    neg_atoms = un.select_atoms(f'(resname {ligand}) and (name O* N* S* Cl* F* Br* I*)')
+                    ion_group = un.select_atoms(f'resname {ion}')
+                    metal_distance = np.linalg.norm(neg_atoms.positions - ion_group.positions, axis = 1)
+                    coordination_scores = (metal_distance < 3).astype(int)
+                    for coordination_score in coordination_scores:
+                        metal_coord.append([str(ion_group.resnames[0]), coordination_score])
 ####################################################
 ################# HYDROPHOBIC ########################
                 df = pd.DataFrame()
