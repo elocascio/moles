@@ -46,7 +46,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     for resname in u.residues.resnames:
         if resname in METAL_IONS:
             ion = resname
-        print(f'found {ion}')
+            print(f'found {ion}')
     if ion:
         ion_group = u.select_atoms(f'resname {ion}')
     ###############################################
