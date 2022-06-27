@@ -187,3 +187,30 @@ def mutation(pdb, residues, mutation, pdb_out):
     cmd.set_wizard()
     cmd.save(pdb_out)
     return pdb_out
+
+class plane:
+    def __init__(self,vector):
+        v1 = vector[3] - vector[1]
+        v2 = vector[2] - vector[1]
+        cp = np.cross(v1,v2)
+        self.a = cp[0]; self.b = cp[1]; self.c = cp[2]
+        self.d = np.dot(cp, p3)
+        self.v = cp
+        self.center = (vector[1]+vector[2]+vector[3])/3
+
+def theta(x,y):
+    l = []
+    for a,b in list(zip(x,y)):
+       l.append(a*b)
+    cross = sum(l)
+    n1 = np.sqrt(x.a**2+x.b**2+x.c**2)
+    n2 = np.sqrt(y.a**2+y.b**2+y.c**2)
+    cos = cross/(n1 * n2)
+    theta = np.arccos(cos)
+    return theta
+
+def picat(pos,ring):
+    l,m,n = ring.center - pos
+    numerator = abs(ring.a*l+ring.b*+ring.c*n)
+    denominator = np.sqrt(ring.a**2+ring.b**2+ring.c**2) * np.sqrt(l**2+m**2+n**2)
+    return np.arcsin(numerator/denominator)
