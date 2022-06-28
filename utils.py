@@ -211,6 +211,6 @@ def theta(x,y):
 
 def picat(pos,ring):
     l,m,n = ring.center - pos
-    numerator = abs(ring.a*l+ring.b*+ring.c*n)
+    numerator = abs(ring.a*l+ring.b*m+ring.c*n)
     denominator = np.sqrt(ring.a**2+ring.b**2+ring.c**2) * np.sqrt(l**2+m**2+n**2)
     return np.arcsin(numerator/denominator)
