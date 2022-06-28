@@ -198,6 +198,7 @@ class plane:
         self.v = cp
         self.center = (vector[1]+vector[2]+vector[3])/3
 
+#angolo indidenza tra piani, accetta classe plane
 def theta(x,y):
     l = []
     for a,b in list(zip(x,y)):
