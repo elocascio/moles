@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
+import itertools
 
 def protein_contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
     Hydrophobic = []
@@ -35,10 +36,22 @@ def protein_contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10):
             mol.analyze()
             my_interactions = mol.interaction_sets[list(mol.interaction_sets.keys())[0]]
 
-            for hydrophob in my_interactions.hydrophobic_contacts:
-                Hydrophobic.append([str(hydrophob.reschain) + str(hydrophob.resnr) + str(hydrophob.restype), switch(float(hydrophob.distance))])
-
-
+################# HYDROPHOBIC ########################
+            df = pd.DataFrame()
+            lig_c  = u.select_atoms(f"resname {ligand} and name C*")
+            prot_c = u.select_atoms(f"protein and (around 7 resname {ligand}) and name C*")
+            gen = itertools.cycle(range(len(lig_c)))
+            prot_list = []
+            for res,num in list(zip(prot_c.resnames, prot_c.resnums)):
+                prot_list.append(str(num)+str(res))
+            for position in lig_c.positions:
+                scores = switch(np.linalg.norm(prot_c.positions - position, axis = 1))
+                df[next(gen)] = scores
+            df = pd.DataFrame((prot_list, df.sum(axis = 1))).T
+            df[1] = df[1].astype(float)
+            df = df.groupby(0).mean()
+            Hydrophobic = pd.concat([Hydrophobic, df])
+################# HYDROPHOBIC ########################
             for pi_stacking in my_interactions.pistacking:
                 if pi_stacking.type == 'T':
                     PiStacking_T.append([str(pi_stacking.reschain) + str(pi_stacking.resnr) + str(pi_stacking.restype), switch(float(pi_stacking.distance), r_0=5.5)])
