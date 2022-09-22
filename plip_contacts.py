@@ -192,7 +192,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             aggregation = {coord_type: 'count'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / (u.trajectory.n_frames / step))
+            df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
             coord_dfs.append(df)
         elif coord_type in "Hydrophobic":
             df = pd.DataFrame(coord, columns = ['residue', coord_type])
@@ -206,7 +206,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / (u.trajectory.n_frames / step))
+            df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
             coord_dfs.append(df)
     
     df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0.2).any()]
