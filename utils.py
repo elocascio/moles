@@ -190,11 +190,11 @@ def mutation(pdb, residues, mutation, pdb_out):
 
 class plane:
     def __init__(self,vector):
-        v1 = vector[3] - vector[1]
-        v2 = vector[2] - vector[1]
+        v1 = vector[2] - vector[0]
+        v2 = vector[1] - vector[0]
         cp = np.cross(v1,v2)
         self.a = cp[0]; self.b = cp[1]; self.c = cp[2]
-        self.d = np.dot(cp, p3)
+        self.d = np.dot(cp, vector[2])
         self.v = cp
         self.center = (vector[1]+vector[2]+vector[3])/3
 
