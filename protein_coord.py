@@ -31,12 +31,12 @@ def protein_contacts(topol = 'MD.pdb', trj = 'MD.xtc', step = 10, ligand = "segi
 
 
 
-    for ts in u.trajectory[::step]:
+    for ts in u.trajectory[:step]:
 
 ########### Hydrophobic ###############    
         df_H = pd.DataFrame()
         lig_c  = u.select_atoms(f"{ligand} and (name C*)")
-        prot_c = u.select_atoms(f"(around 7 segid {ligand}) and name C*")
+        prot_c = u.select_atoms(f"(around 7 {ligand}) and name C*")
         gen = itertools.cycle(range(len(lig_c)))
         prot_list = []
         for res,num in list(zip(prot_c.resnames, prot_c.resnums)):
@@ -54,7 +54,7 @@ def protein_contacts(topol = 'MD.pdb', trj = 'MD.xtc', step = 10, ligand = "segi
         df_Sn = pd.DataFrame()
         lig_pos = u.select_atoms(f"{ligand} and (name CZ NZ)"); lig_neg = u.select_atoms(f"{ligand} and (resname GLU ASP) and name OT1 OT2 OD1 OD2 OE1 OE2")
         lig_asn = u.select_atoms(f"{ligand} and (resname ASN)"); lig_neg = lig_neg - lig_asn
-        lig_c_term = u.select_atoms(f"{ligand} and (resnum {l.resnums[-1]}) and (name OT*)"); lig_neg = lig_neg + lig_c_term
+        lig_c_term = u.select_atoms(f"{ligand} and (resnum {lig_c.resnums[-1]}) and (name OT*)"); lig_neg = lig_neg + lig_c_term
         prot_pos = u.select_atoms(f"(around 7 {ligand}) and (resname ARG LYS) and (name CZ NZ)"); prot_neg = u.select_atoms(f"(around 7 {ligand}) and (name OD1 OD2 OE1 OE2)")
         # pos vs neg #
         gen = itertools.cycle(range(len(lig_neg)))
@@ -96,22 +96,22 @@ def protein_contacts(topol = 'MD.pdb', trj = 'MD.xtc', step = 10, ligand = "segi
         df_pol = pd.DataFrame((pos, df_pol.sum(axis = 1))).T
         df_pol[1] = df_pol[1].astype(float); df_pol = df_pol.groupby(0).mean()
         
-        neg = []; df_neg = pd.DataFrame()
-        df_pol2 = pd.DataFrame
+        neg = []
+        df_pol2 = pd.DataFrame()
         lig_polar_pos = u.select_atoms(f"{ligand} and (resname ARG LYS) and (name CZ NZ)")
-        prot_back = u.select_atoms(f"(around 7 {ligand} and (backbone) and (name O* N*)")
+        prot_back = u.select_atoms(f"(around 7 {ligand}) and (backbone) and (name O* N*)")
         prot_polar = u.select_atoms(f"(around 7 {ligand}) and (resname THR SER GLN ASN CYS MET HSD TRP ) and (name O* N* S*)")
         prot_polar = prot_polar + prot_back
         gen = itertools.cycle(neg)
         for res, num in list(zip(prot_polar.resnames, prot_polar.resnums)):
-            pos.append(str(num)+str(res))
+            neg.append(str(num)+str(res))
         for position in lig_polar_pos.positions:
             scores = switch(np.linalg.norm(prot_polar.positions - position, axis = 1))
-            df_pol2[next(neg)] = pd.Series(scores)
+            df_pol2[next(gen)] = pd.Series(scores)
         df_pol2 = pd.DataFrame((neg, df_pol2.sum(axis = 1))).T
-        df_pol2[1] = df_pol2[1].astype(float); df_pol2 = df_pol2.group(0).mean()
+        df_pol2[1] = df_pol2[1].astype(float); df_pol2 = df_pol2.groupby(0).mean()
         df_Pol = pd.DataFrame(); df_Pol = pd.concat([df_pol, df_pol2])
-        Polar = pd.concat([Polar, df_Pol]); Polar_time = pd.concat([Polar, df_Pol], axis = 1)
+        Polar = pd.concat([Polar, df_Pol]); #Polar_time = pd.concat([Polar, df_Pol], axis = 1)
 ################# Polar #####################
 ############# H-bond ##################### 
     hbondsa = HBA(universe=u)
