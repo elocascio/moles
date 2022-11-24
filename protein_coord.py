@@ -152,7 +152,8 @@ def protein_contacts(topol = 'MD.pdb', trj = 'MD.xtc', step = 10, ligand = "segi
     ax.set_ylim(top=4)
     ax.legend(bbox_to_anchor=(1.01, 1), loc='best')
     ax.set_ylabel('coordination')
-
+    (ax.figure).savefig(f'coord_{ligand}.png', format = 'png', bbox_inches = 'tight')
+    
 if __name__=='__main__':
     init()
     parser = argparse.ArgumentParser()
