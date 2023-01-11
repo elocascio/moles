@@ -56,6 +56,7 @@ def protein_contacts(topol = 'MD.pdb', trj = 'MD.xtc', step = 10, ligand = "segi
         lig_asn = u.select_atoms(f"{ligand} and (resname ASN)"); lig_neg = lig_neg - lig_asn
         lig_c_term = u.select_atoms(f"{ligand} and (resnum {lig_c.resnums[-1]}) and (name OT*)"); lig_neg = lig_neg + lig_c_term
         prot_pos = u.select_atoms(f"(around 7 {ligand}) and (resname ARG LYS) and (name CZ NZ)"); prot_neg = u.select_atoms(f"(around 7 {ligand}) and (name OD1 OD2 OE1 OE2)")
+        prot_asn = u.select_atoms(f"resname ASN"); prot_neg = prot_neg - prot_asn
         # pos vs neg #
         gen = itertools.cycle(range(len(lig_neg)))
         prot_pos_list = []
