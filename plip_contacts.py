@@ -191,7 +191,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             aggregation = {coord_type: 'count'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             if args.abs == True:
-                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames)
+                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames / step)
                 coord_dfs.append(df)
             else:
                 df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
@@ -201,7 +201,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             if args.abs == True:
-                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames)
+                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames / step)
                 coord_dfs.append(df)
             else:
                 df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
@@ -211,7 +211,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
             if args.abs == True:
-                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames)
+                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames / step)
                 coord_dfs.append(df)
             else:
                 df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
@@ -219,12 +219,18 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     
     df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0.2).any()]
     df_all = df_all.sort_values(by=['residue'])
-    df_all.to_csv(f'coord_{ligand}.csv')
+    if args.abs:
+        df_all.to_csv(f'coord_abs_{ligand}.csv')
+    else:
+        df_all.to_csv(f'coord_{ligand}.csv')
     ax = df_all.plot.bar(stacked = True, color = colors)
     ax.set_ylim(top=4)
     ax.legend(bbox_to_anchor=(1.01, 1), loc='best')
     ax.set_ylabel('coordination')
-    (ax.figure).savefig(f'coord_{ligand}.png', format = 'png', bbox_inches = 'tight')
+    if args.abs:
+        (ax.figure).savefig(f'coord_{ligand}_abs.png', format = 'png', bbox_inches = 'tight')
+    else:
+        (ax.figure).savefig(f'coord_{ligand}.png', format = 'png', bbox_inches = 'tight')
 
     figfile = BytesIO()
     (ax.figure).savefig(figfile, format='png', bbox_inches = 'tight')
