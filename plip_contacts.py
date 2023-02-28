@@ -236,7 +236,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     return string
 
 if __name__=='__main__':
-    init()
+#    init()
     parser = argparse.ArgumentParser()
     parser.add_argument("-lig", type=str, help="name of ligand --- default= UNK", default="UNK")
     parser.add_argument("-pdb", type= str, help="file pdb gromacs --- default MD.pdb", default='MD.pdb')
