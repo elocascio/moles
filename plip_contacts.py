@@ -175,7 +175,6 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
 ####################################################
 
                 counter += 1
-                bar.update(u.trajectory.frame)
     Hydrophobic = Hydrophobic.reset_index()
     Hydrophobic = Hydrophobic.values
     
