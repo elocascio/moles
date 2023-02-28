@@ -200,7 +200,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             df = pd.DataFrame(coord, columns = ['residue', coord_type])
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
-            if args.abs == True::
+            if args.abs == True:
                 df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames)
                 coord_dfs.append(df)
             else:
