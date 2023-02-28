@@ -191,23 +191,32 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
             df = pd.DataFrame(coord, columns=['residue', coord_type])
             aggregation = {coord_type: 'count'}
             df = df.groupby(df['residue']).aggregate(aggregation)
-            print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
-            coord_dfs.append(df)
+            if not args.abs:
+                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames)
+                coord_dfs.append(df)
+            else:
+                df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
+                coord_dfs.append(df)
         elif coord_type in "Hydrophobic":
             df = pd.DataFrame(coord, columns = ['residue', coord_type])
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
-            print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
-            coord_dfs.append(df)
+            if not args.abs:
+                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames)
+                coord_dfs.append(df)
+            else:
+                df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
+                coord_dfs.append(df)
         else: 
             df = pd.DataFrame(coord, columns = ['residue', coord_type])
             aggregation = {coord_type: 'sum'}
             df = df.groupby(df['residue']).aggregate(aggregation)
-            print(df)
-            df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
-            coord_dfs.append(df)
+            if not args.abs:
+                df[coord_type] = df[coord_type].apply(lambda x: x / u.trajectory.n_frames)
+                coord_dfs.append(df)
+            else:
+                df[coord_type] = df[coord_type].apply(lambda x: x / df[coord_type].max())
+                coord_dfs.append(df)
     
     df_all = pd.concat(coord_dfs, axis = 1); df_all = df_all.fillna(0); df_all = df_all[(df_all.T > 0.2).any()]
     df_all = df_all.sort_values(by=['residue'])
@@ -234,5 +243,6 @@ if __name__=='__main__':
     parser.add_argument("-pdb", type= str, help="file pdb gromacs --- default MD.pdb", default='MD.pdb')
     parser.add_argument("-xtc", type= str, help="file xtc gromacs --- default MD.xtc", default='MD.xtc')
     parser.add_argument("-step", type= int, help="value of step --- default 10", default='10')
+    parser.add_argument("-abs", action= "store_true", help="yield absolute contant values")
     args= parser.parse_args()
     contacts(ligand = args.lig, pdb = args.pdb, xtc = args.xtc, step = args.step)
