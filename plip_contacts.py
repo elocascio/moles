@@ -70,7 +70,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     unk = u.select_atoms(f'resname {ligand}'); lig_id = unk.resids[0]; lig_chain = unk.chainIDs[0]
 
     counter = 1
-    with progressbar.ProgressBar(max_value=u.trajectory.n_frames) as bar:
+    with open("ghost", "w"):
         for ts in u.trajectory:
             if ts.frame % step == 0:
                 complexo.write('trajj.pdb')
