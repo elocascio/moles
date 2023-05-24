@@ -32,3 +32,33 @@ MOLEcular dynamics Suite
                         .-~_____:~~    :'                                  
                         ~~~  .-'__..-~'           Ekein                         
                              ~~~
+
+Written by Ettore Lo Cascio - ettore.locascio@unicatt.it
+
+A code Package that let you do some molecular stuff:
+
+HTMD.py - High Throughput Molecular Dynamics - Builds a protein-ligand in water system starting from the receptor (pdb) and the ligand (mol2, coordinate
+must be of the docked conformation). Ligand topology is made with MATCH.pl Runs minimization, equilibration, Production and 
+makes a set of analysis (RMSD and contact analysis via plip_contact.py)
+
+HTMD_pool.py - same of HTMD, but multiprocessing... can spam a lot of process. Careful with that GPU, Eugene!
+
+make_mdp.py - it writes mdp files for gromacs.
+
+make_ndx.py - it writes gromacs index file using MDAnalysis CHARMM-like selection
+
+native.py - Native Contact Analysis using MDAnalysis. it will give you matrix of contacts per residues over time. Those matrixes can be
+subtracted or divided if a reference matrix is given.
+
+plip_contact.py - makes contacts analysis for protein-ligand interaction using plip and MDAnalysis library. It can detect Hydrophobic,
+T and P pi-stacking, pi-cation, H-bond, Salt bridge, water bridge interactions.
+
+protein_contacts.py - makes contact analysis for protein-protein interaction using MDAnalysis. it can detect Hydrophobic, H-bond, Salt bridge and polar
+interaction. pi-stacking and pi-cation will come.
+
+protein.py - builds a simple protein in water system running minimization, equilibration and profuction. Multiple site mutations can be done.
+
+rms.py - calculate RMSD (using PLUMED [it rebuilds better the system broken by PBC... sometimes]) and cluster via gromacs.
+
+utils.py - a bunch of functions
+
