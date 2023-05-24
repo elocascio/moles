@@ -35,6 +35,9 @@ MOLEcular dynamics Suite
 
 Written by Ettore Lo Cascio - ettore.locascio@unicatt.it
 
+REQUIRED PACKAGE:
+Python, MDAnalysis, plip, matplotlib, numpy, pymol
+
 A code Package that let you do some molecular stuff:
 
 HTMD.py - High Throughput Molecular Dynamics - Builds a protein-ligand in water system starting from the receptor (pdb) and the ligand (mol2, coordinate
