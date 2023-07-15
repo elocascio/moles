@@ -1,3 +1,20 @@
+###########################################
+# Runs protein-protein interaction.
+#
+# Outputs bar plot of the protein-protein interaction
+# and data table. Requires topology file for reference (.tpr,.pdb,.psf)
+# and a trajectory (.trr,.xtc,.dcd) and selection string (es. "segid PROB and resnum 1-11"). 
+#
+# USAGE: python protein_coord.py -h
+#
+# ettore.locascio@unicatt.it -> version 2023
+###########################################
+# 
+# see:
+# Giacon, N; Lo Cascio, E et al, Monomeric and dimeric states of human ZO1-PDZ2 are functional partners of the SARS-CoV-2 E protein, Comput Struct Biotechnol J, 2023.
+# DOI:https://doi.org/10.1016/j.csbj.2023.05.027
+###########################################
+
 def switch(r, r_0=6,a=6,b=12):
     return (1-(r/r_0)**a)/(1-(r/r_0)**b)
 
@@ -12,7 +29,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 from MDAnalysis.analysis.hydrogenbonds.hbond_analysis import HydrogenBondAnalysis as HBA
-from Misc.moles import init
 import argparse
 
 
@@ -155,11 +171,10 @@ def protein_contacts(topol = 'MD.pdb', trj = 'MD.xtc', step = 10, ligand = "segi
     (ax.figure).savefig(f'coord_{ligand}.png', format = 'png', bbox_inches = 'tight')
     
 if __name__=='__main__':
-    init()
     parser = argparse.ArgumentParser()
-    parser.add_argument("-lig", type=str, help="name of ligand --- default= UNK", default="UNK")
-    parser.add_argument("-topol", type= str, help="file pdb gromacs --- default MD.pdb", default='MD.pdb')
-    parser.add_argument("-trj", type= str, help="file xtc gromacs --- default MD.xtc", default='MD.xtc')
+    parser.add_argument("-select", type=str, help="select ligand usign MDAnalsysis selection")
+    parser.add_argument("-topol", type= str, help="file pdb,psf,tpr --- default MD.pdb", default='MD.pdb')
+    parser.add_argument("-trj", type= str, help="file xtc,trr,dcd --- default MD.xtc", default='MD.xtc')
     parser.add_argument("-step", type= int, help="value of step --- default 10", default='10')
     args= parser.parse_args()
     protein_contacts(topol = args.topol, trj = args.trj, step = args.step, ligand = args.lig)
