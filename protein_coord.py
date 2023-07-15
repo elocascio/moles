@@ -131,14 +131,14 @@ def protein_contacts(topol = 'MD.pdb', trj = 'MD.xtc', step = 10, ligand = "segi
 ################# Polar #####################
 ############# H-bond ##################### 
     hbondsa = HBA(universe=u)
-    hbondsa.hydrogens_sel = f"segid PRO* and (name H* and bonded name O* N*)"
+    hbondsa.hydrogens_sel = f"(around 7 {ligand}) and (name H* and bonded name O* N*)"
     hbondsa.acceptors_sel = f"{ligand} and (name O* N*)"
     hbondsa.run(step=step)
     resulta = hbondsa.count_by_ids()
     
     hbondsb = HBA(universe=u)
     hbondsb.hydrogens_sel = f"{ligand} and (name H* and bonded name O* N*)"
-    hbondsb.acceptors_sel = f"segid PROA and (name O* N*)"
+    hbondsb.acceptors_sel = f"(around 7 {ligand}) and (name O* N*)"
     hbondsb.run(step=step)
     resultb = hbondsb.count_by_ids()
 
