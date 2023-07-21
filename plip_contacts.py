@@ -7,7 +7,7 @@
 # it can detect Hydrophobic,T and P pi-stacking, pi-cation, H-bond, Salt bridge, water bridge interactions.
 # abs flag, gives you absolute interaction value... pay attention, hydrophobic interaction can be extremely high!!
 #
-# USAGE: python protein_ -h
+# USAGE: python plip_contacts.py -h
 #
 # ettore.locascio@unicatt.it -> version 2023
 ###########################################
