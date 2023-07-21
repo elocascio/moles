@@ -1,3 +1,26 @@
+###########################################
+# Runs ligand-protein interaction.
+#
+# Outputs bar plot of ligand-protein interaction
+# and data table. Requires topology file for reference (.tpr,.pdb,.psf)
+# and a trajectory (.trr,.xtc,.dcd) and name of ligand (es. "UNK"). 
+# it can detect Hydrophobic,T and P pi-stacking, pi-cation, H-bond, Salt bridge, water bridge interactions.
+# abs flag, gives you absolute interaction value... pay attention, hydrophobic interaction can be extremely high!!
+#
+# USAGE: python protein_ -h
+#
+# ettore.locascio@unicatt.it -> version 2023
+###########################################
+# 
+# see:
+# Canini G, Lo Cascio E, Della Longa S, Cecconi F, Arcovito A. 
+# Human Glucosylceramide Synthase at Work as Provided by "In Silico" Molecular Docking, Molecular Dynamics, and Metadynamics.
+# ACS Omega. 2023 Feb 22;8(9):8755-8765.
+# doi: 10.1021/acsomega.2c08219.
+# 
+###########################################
+
+
 def switch(r, r_0=6,a=6,b=12):
     return (1-(r/r_0)**a)/(1-(r/r_0)**b)
 
@@ -241,7 +264,7 @@ def contacts(pdb = 'MD.pdb', xtc = 'MD.xtc', step = 10, ligand = 'UNK'):
     return string
 
 if __name__=='__main__':
-#    init()
+    init()
     parser = argparse.ArgumentParser()
     parser.add_argument("-lig", type=str, help="name of ligand --- default= UNK", default="UNK")
     parser.add_argument("-pdb", type= str, help="file pdb gromacs --- default MD.pdb", default='MD.pdb')
