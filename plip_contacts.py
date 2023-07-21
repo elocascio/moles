@@ -24,7 +24,6 @@
 def switch(r, r_0=6,a=6,b=12):
     return (1-(r/r_0)**a)/(1-(r/r_0)**b)
 
-from inspect import stack
 import MDAnalysis
 from plip.structure.preparation import PDBComplex
 import pandas as pd
