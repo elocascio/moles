@@ -1,10 +1,11 @@
-def make_mdp(mdp = 'MD', ns = 5, dt = 0.002, nstxout = 0, nstvout = 0, nstenergy = 0):
-    
-    if mdp == 'MD':
-        with open (f'{mdp}.mdp', 'w') as fout:
+def make_mdp(mdp="MD", ns=5, dt=0.002, nstxout=0, nstvout=0, nstenergy=0):
+
+    if mdp == "MD":
+        with open(f"{mdp}.mdp", "w") as fout:
             nsteps = int(ns * 1000 / dt)
             save_everyframes = int(nsteps / 1000)
-            fout.write(f""";
+            fout.write(
+                f""";
 integrator              = md
 dt                      = {dt}
 nsteps                  = {nsteps}
@@ -45,11 +46,13 @@ comm_mode               = linear
 comm_grps               = SYSTEM
 ;
 refcoord_scaling        = com
-""")
+"""
+            )
 
-    elif mdp == 'equi':
-        with open (f'{mdp}.mdp', 'w') as fout:
-            fout.write(f""";
+    elif mdp == "equi":
+        with open(f"{mdp}.mdp", "w") as fout:
+            fout.write(
+                f""";
 define                  = -DPOSRES
 integrator              = md
 dt                      = 0.001
@@ -87,11 +90,13 @@ gen-vel                 = yes
 gen-temp                = 303.15
 gen-seed                = -1
 ;
-refcoord_scaling        = com""")
- 
-    elif mdp == 'mini':
-        with open (f'{mdp}.mdp', 'w') as fout:
-            fout.write(f""";
+refcoord_scaling        = com"""
+            )
+
+    elif mdp == "mini":
+        with open(f"{mdp}.mdp", "w") as fout:
+            fout.write(
+                f""";
 define                  = -DPOSRES
 integrator              = steep
 emtol                   = 1000.0
@@ -107,11 +112,13 @@ coulombtype             = pme
 rcoulomb                = 1.2
 ;
 constraints             = h-bonds
-constraint_algorithm    = LINCS""")
+constraint_algorithm    = LINCS"""
+            )
 
-    elif mdp == 'ions':
-        with open (f'{mdp}.mdp', 'w') as fout:
-            fout.write(f"""
+    elif mdp == "ions":
+        with open(f"{mdp}.mdp", "w") as fout:
+            fout.write(
+                f"""
 ; ions.mdp - used as input into grompp to generate ions.tpr
 ; Parameters describing what to do, when to stop and what to save
 integrator  = steep         ; Algorithm (steep = steepest descent minimization)
@@ -126,6 +133,8 @@ ns_type         = grid      ; Method to determine neighbor list (simple, grid)
 coulombtype     = cutoff    ; Treatment of long range electrostatic interactions
 rcoulomb        = 1.0       ; Short-range electrostatic cut-off
 rvdw            = 1.0       ; Short-range Van der Waals cut-off
-pbc             = xyz       ; Periodic Boundary Conditions in all 3 dimensions""")
-    else: print('something wrong?')
+pbc             = xyz       ; Periodic Boundary Conditions in all 3 dimensions"""
+            )
+    else:
+        print("something wrong?")
     return fout.name

@@ -12,12 +12,19 @@ parser.add_argument("-user", type=str, help="username", default="elocasci")
 parser.add_argument("-email", type=str, help="email", default="elocascio@unicatt.it")
 args = parser.parse_args()
 
-folder = getcwd(); print(folder)
+folder = getcwd()
+print(folder)
 cpt = ""
 
 
 while True:
-    qme = ((subprocess.Popen( ["squeue", "-u" ,args.user], stdout=subprocess.PIPE ).communicate()[0]).decode("ascii")).split()
+    qme = (
+        (
+            subprocess.Popen(
+                ["squeue", "-u", args.user], stdout=subprocess.PIPE
+            ).communicate()[0]
+        ).decode("ascii")
+    ).split()
     if args.name in qme:
         print(f"found {args.name} in {qme}")
         sleep(120)
@@ -28,7 +35,8 @@ while True:
                 cpt = "-cpi"
                 print("checkpoint found!")
 
-            sh.write(f"""#!/bin/bash
+            sh.write(
+                f"""#!/bin/bash
 #SBATCH -A IscrC_INSIDE1
 #SBATCH -p m100_usr_prod
 #SBATCH --qos=m100_qos_dbg
@@ -49,6 +57,7 @@ module load autoload gromacs/2021.4
 cd {folder}
 export  OMP_NUM_THREADS={args.nt}
 mdrun_thread_mpi -v -deffnm MD {cpt}
-""")
+"""
+            )
     system("sbatch m100.sh")
-    sleep(1800)    
+    sleep(1800)

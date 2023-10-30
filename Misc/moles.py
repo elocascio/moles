@@ -1,10 +1,12 @@
 import time
 from random import randint
 
+
 def init():
-  rand = randint(0,1)
-  if rand == 0:
-    print("""
+    rand = randint(0, 1)
+    if rand == 0:
+        print(
+            """
                                88             
                                88             
                                88             
@@ -39,9 +41,11 @@ MOLEcular dynamics Suite
                         .-~_____:~~    :'                                  
                         ~~~  .-'__..-~'     THE MOLES TEAM                         
                              ~~~
-""")
-  elif rand == 1:
-    print("""
+"""
+        )
+    elif rand == 1:
+        print(
+            """
                                88             
                                88             
                                88             
@@ -77,8 +81,10 @@ MOLEcular dynamics Suite
                    | || |           | |   | |
                    |_||_|           |_|   |_|
                   /_//_/           /_/   /_/      Loki
-""")
-    time.sleep(1.01)
+"""
+        )
+        time.sleep(1.01)
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     init()
