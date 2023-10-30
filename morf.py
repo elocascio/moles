@@ -9,12 +9,27 @@ import MDAnalysis as mda
 from var import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-gmx", type=str, help="gromacs --- default gmx", default="gmx")
 parser.add_argument(
-    "-mdrun", type=str, help="mdrun --- default mdrun_tmpi", default="mdrun_tmpi"
+    "-gmx", 
+    type=str, 
+    help="gromacs --- default gmx", 
+    default="gmx")
+parser.add_argument(
+    "-mdrun", 
+    type=str, 
+    help="mdrun --- default mdrun_tmpi", 
+    default="mdrun_tmpi"
 )
-parser.add_argument("-mother", type=str, help="reference folder to morf")
-parser.add_argument("-lig", type=str, help="ligand name .mol2 namefile")
+parser.add_argument(
+    "-mother", 
+    type=str, 
+    help="reference folder to morf"
+)
+parser.add_argument(
+    "-lig", 
+    type=str, 
+    help="ligand name .mol2 namefile"
+)
 args = parser.parse_args()
 
 system(f"{MATCH} {args.lig}.mol2")

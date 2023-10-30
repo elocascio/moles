@@ -15,12 +15,22 @@ from Misc.moles import init
 
 init()
 parser = argparse.ArgumentParser()
-parser.add_argument("-gmx", type=str, help="gromacs --- default gmx", default="gmx")
 parser.add_argument(
-    "-mdrun", type=str, help="mdrun --- default mdrun_tmpi", default="mdrun_tmpi"
+    "-gmx", 
+    type=str, 
+    help="gromacs --- default gmx", 
+    default="gmx")
+parser.add_argument(
+    "-mdrun", 
+    type=str, 
+    help="mdrun --- default mdrun_tmpi", 
+    default="mdrun_tmpi"
 )
 parser.add_argument(
-    "-nt", "--numthread", type=int, help="number of threads --- default 4", default=4
+    "-nt", "--numthread", 
+    type=int, 
+    help="number of threads --- default 4", 
+    default=4
 )
 parser.add_argument(
     "-ns",
@@ -30,7 +40,10 @@ parser.add_argument(
     default=5,
 )
 parser.add_argument(
-    "-step", type=float, help="step in ps --- default 0.002", default=0.002
+    "-step", 
+    type=float, 
+    help="step in ps --- default 0.002", 
+    default=0.002
 )
 parser.add_argument(
     "-vsite",
@@ -40,14 +53,27 @@ parser.add_argument(
     default="",
 )
 parser.add_argument(
-    "-d", "-distance", type=float, help="distance from solute --- default 1", default=1
+    "-d", "-distance", 
+    type=float, 
+    help="distance from solute --- default 1", 
+    default=1
 )
-parser.add_argument("-native", action="store_true", help="Native Contact Analysis")
-# parser.add_argument("-mutation", action='store_true', help="Native Contact Analysis")
 parser.add_argument(
-    "-p", "--pool", type=int, help="number of process --- default 1", default=1
+    "-native", 
+    action="store_true", 
+    help="Native Contact Analysis"
 )
-parser.add_argument("-s", "--system", type=str, help="system PDB file")
+parser.add_argument(
+    "-p", "--pool", 
+    type=int, 
+    help="number of process --- default 1", 
+    default=1
+)
+parser.add_argument(
+    "-s", "--system", 
+    type=str, 
+    help="system PDB file"
+)
 parser.add_argument(
     "-f",
     "--report",
@@ -56,14 +82,20 @@ parser.add_argument(
     default="$PWD/report.csv",
 )
 parser.add_argument(
-    "-r", type=str, help='residue to mutate - syntax "A-588,B-577,C-23"'
+    "-r", 
+    type=str, 
+    help='residue to mutate - syntax "A-588,B-577,C-23"'
 )
 parser.add_argument(
     "-a",
     type=str,
     help='aminoacid to substitute, 3 letter, comma separate. IN ORDER - ex. "ANS,PHE,ARG,TRP"',
 )
-parser.add_argument("-ntmpi", action="store_true", help="ntmpi 1")
+parser.add_argument(
+    "-ntmpi", 
+    action="store_true", 
+    help="ntmpi 1"
+)
 args = parser.parse_args()
 
 if args.ntmpi:
@@ -117,16 +149,3 @@ system(f"{args.mdrun} -deffnm equi -nt {args.numthread} -v {ntmpi}")
 MD_mdp = make_mdp(mdp="MD", ns=args.nanoseconds, dt=args.step)
 system(f"{args.gmx} grompp -f {MD_mdp} -c equi.gro -p topol.top -o MD.tpr -maxwarn 10")
 system(f"{args.mdrun} -v -deffnm MD -nt {args.numthread} {ntmpi}")
-
-# ----------- Analysis
-if args.native:
-    u = MDAnalysis.Universe("MD.tpr", "MD.xtc")
-    receptor = u.select_atoms()
-    ligand = u.select_atoms()
-    native = contacts.Contacts(
-        u,
-        select=("segid seg_2*", "(segid seg_0*) or (segid seg_1*)"),
-        method="soft_cut",
-        refgroup=(ligand, receptor),
-    ).run(step=10)
-    np.savetxt("text.txt", native.timeseries)

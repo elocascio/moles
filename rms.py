@@ -24,7 +24,11 @@ parser.add_argument(
     default="MD.trr",
     required=True,
 )
-parser.add_argument("-clust", action="store_true", help="Calculate Clusters")
+parser.add_argument(
+    "-clust", 
+    action="store_true", 
+    help="Calculate Clusters"
+)
 parser.add_argument(
     "-method",
     type=str,
@@ -32,18 +36,38 @@ parser.add_argument(
     default="gromos",
 )
 parser.add_argument(
-    "-cutoff", type=float, help="n of cutoff --- default 0.1", default=0.1
+    "-cutoff", 
+    type=float, 
+    help="n of cutoff --- default 0.1", 
+    default=0.1
 )
 parser.add_argument(
-    "-fit", type=str, help="select group charmm-like syntax for fit-least square group"
+    "-fit", 
+    type=str, 
+    help="select group charmm-like syntax for fit-least square group"
 )
 parser.add_argument(
-    "-ogroup", type=str, help="select group charmm-like syntax for group output"
+    "-ogroup", 
+    type=str, 
+    help="select group charmm-like syntax for group output"
 )
-parser.add_argument("-skip", type=str, help="skip frame", default=10)
-
-parser.add_argument("-rmsd", action="store_true", help="Calculate Clusters")
-parser.add_argument("-stride", type=str, help="frequency", default=10)
+parser.add_argument(
+    "-skip", 
+    type=str, 
+    help="skip frame", 
+    default=10
+)
+parser.add_argument(
+    "-rmsd", 
+    action="store_true", 
+    help="Calculate Clusters"
+)
+parser.add_argument(
+    "-stride", 
+    type=str, 
+    help="frequency", 
+    default=10
+)
 parser.add_argument(
     "-sele",
     type=str,

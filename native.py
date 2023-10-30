@@ -14,24 +14,71 @@ import sys
 init()
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-tpr", type=str, help="tpr file to use as reference", default="MD.tpr"
+    "-tpr", 
+    type=str, 
+    help="tpr file to use as reference", 
+    default="MD.tpr"
 )
 parser.add_argument(
-    "-xtc", type=str, help="xtc file to use as reference", default="MD.xtc"
+    "-xtc", 
+    type=str, 
+    help="xtc file to use as reference", 
+    default="MD.xtc"
 )
 
-parser.add_argument("-method", type=str, choices=["switch_function", "hard"])
-parser.add_argument("-ref", type=str, help="path of matrix referement")
-parser.add_argument("-sub", action="store_true", help="Calcualte Delta Matrix")
-parser.add_argument("-multi", action="store_true", help="Multidir")
-parser.add_argument("-show", action="store_true", help="show")
-parser.add_argument("-sel_A", type=str, help="selection group A", default=0)
-parser.add_argument("-sel_B", type=str, help="selection group B", default=0)
-parser.add_argument("-step", type=int, help="step every n frame", default=10)
 parser.add_argument(
-    "-absolute", action="store_true", help="absolute score using switching function"
+    "-method", 
+    type=str, 
+    choices=["switch_function", "hard"]
 )
-parser.add_argument("-div", action="store_true", help="divide 2 absolute-scored matrix")
+parser.add_argument(
+    "-ref", 
+    type=str, 
+    help="path of matrix referement"
+)
+parser.add_argument(
+    "-sub", 
+    action="store_true", 
+    help="Calcualte Delta Matrix"
+)
+parser.add_argument(
+    "-multi", 
+    action="store_true", 
+    help="Multidir"
+)
+parser.add_argument(
+    "-show", 
+    action="store_true", 
+    help="show"
+)
+parser.add_argument(
+    "-sel_A", 
+    type=str, 
+    help="selection group A", 
+    default=0
+)
+parser.add_argument(
+    "-sel_B", 
+    type=str, 
+    help="selection group B", 
+    default=0
+)
+parser.add_argument(
+    "-step", 
+    type=int, 
+    help="step every n frame", 
+    default=10
+)
+parser.add_argument(
+    "-absolute", 
+    action="store_true", 
+    help="absolute score using switching function"
+)
+parser.add_argument(
+    "-div", 
+    action="store_true", 
+    help="divide 2 absolute-scored matrix"
+)
 
 args = parser.parse_args()
 

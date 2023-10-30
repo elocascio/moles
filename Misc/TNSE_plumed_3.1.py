@@ -29,13 +29,28 @@ def DNAze_pdb(pdb):
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-tpr", type=str, help="tpr file to use as reference", default="./MD.tpr"
+    "-tpr", 
+    type=str, 
+    help="tpr file to use as reference", 
+    default="./MD.tpr"
 )
 parser.add_argument(
-    "-xtc", type=str, help="xtc file to use as reference", default="./MD.xtc"
+    "-xtc", 
+    type=str, 
+    help="xtc file to use as reference", 
+    default="./MD.xtc"
 )
-parser.add_argument("-ref", type=str, help="path of matrix referement")
-parser.add_argument("-pdb", type=str, help="selection group A", default="./MD.pdb")
+parser.add_argument(
+    "-ref", 
+    type=str, 
+    help="path of matrix referement"
+)
+parser.add_argument(
+    "-pdb", 
+    type=str, 
+    help="selection group A", 
+    default="./MD.pdb"
+)
 args = parser.parse_args()
 
 U = []

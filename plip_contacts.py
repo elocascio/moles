@@ -370,19 +370,33 @@ if __name__ == "__main__":
     init()
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-lig", type=str, help="name of ligand --- default= UNK", default="UNK"
+        "-lig", 
+        type=str, 
+        help="name of ligand --- default= UNK", 
+        default="UNK"
     )
     parser.add_argument(
-        "-pdb", type=str, help="file pdb gromacs --- default MD.pdb", default="MD.pdb"
+        "-pdb", 
+        type=str, 
+        help="file pdb gromacs --- default MD.pdb", 
+        default="MD.pdb"
     )
     parser.add_argument(
-        "-xtc", type=str, help="file xtc gromacs --- default MD.xtc", default="MD.xtc"
+        "-xtc", 
+        type=str, 
+        help="file xtc gromacs --- default MD.xtc", 
+        default="MD.xtc"
     )
     parser.add_argument(
-        "-step", type=int, help="value of step --- default 10", default="10"
+        "-step", 
+        type=int, 
+        help="value of step --- default 10", 
+        default="10"
     )
     parser.add_argument(
-        "-abs", action="store_true", help="yield absolute contant values"
+        "-abs", 
+        action="store_true", 
+        help="yield absolute contant values"
     )
     args = parser.parse_args()
     contacts(ligand=args.lig, pdb=args.pdb, xtc=args.xtc, step=args.step)

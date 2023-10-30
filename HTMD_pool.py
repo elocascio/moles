@@ -17,12 +17,23 @@ from Misc.moles import init
 init()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-gmx", type=str, help="gromacs --- default gmx", default="gmx")
 parser.add_argument(
-    "-mdrun", type=str, help="mdrun --- default mdrun_tmpi", default="mdrun_tmpi"
+    "-gmx", 
+    type=str, 
+    help="gromacs --- default gmx", 
+    default="gmx"
 )
 parser.add_argument(
-    "-nt", "--numthread", type=int, help="number of threads --- default 4", default=4
+    "-mdrun", 
+    type=str, 
+    help="mdrun --- default mdrun_tmpi", 
+    default="mdrun_tmpi"
+)
+parser.add_argument(
+    "-nt", "--numthread", 
+    type=int, 
+    help="number of threads --- default 4", 
+    default=4
 )
 parser.add_argument(
     "-ns",
@@ -32,7 +43,10 @@ parser.add_argument(
     default=5,
 )
 parser.add_argument(
-    "-step", type=float, help="step in ps --- default 0.002", default=0.002
+    "-step", 
+    type=float, 
+    help="step in ps --- default 0.002", 
+    default=0.002
 )
 parser.add_argument(
     "-ln",
@@ -42,7 +56,10 @@ parser.add_argument(
     default=50,
 )
 parser.add_argument(
-    "-p", "--pool", type=int, help="number of process --- default 4", default=4
+    "-p", "--pool", 
+    type=int, 
+    help="number of process --- default 4", 
+    default=4
 )
 parser.add_argument(
     "-l",
@@ -52,7 +69,10 @@ parser.add_argument(
     default="ZINC",
 )
 parser.add_argument(
-    "-i", "--ligID", type=str, help="ligand id --- default UNK", default="UNK"
+    "-i", "--ligID", 
+    type=str, 
+    help="ligand id --- default UNK", 
+    default="UNK"
 )
 parser.add_argument(
     "-r",
