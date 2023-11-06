@@ -32,8 +32,41 @@ import itertools
 from MDAnalysis.analysis.hydrogenbonds.hbond_analysis import HydrogenBondAnalysis as HBA
 import argparse
 
+def _parse_CLAs() -> argparse.ArgumentParser:
+    """
+    Parser Command Line Arguments
 
-def protein_contacts(topol="MD.pdb", trj="MD.xtc", step=10, ligand="segid PROB"):
+    Returns:
+        argparse.ArgumentParser : parsed command line arguments
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-select", 
+        type=str, 
+        help="select ligand usign MDAnalsysis selection"
+    )
+    parser.add_argument(
+        "-topol", 
+        type=str, 
+        help="file pdb,psf,tpr --- default MD.pdb",
+        default="MD.pdb"
+    )
+    parser.add_argument(
+        "-trj", 
+        type=str, 
+        help="file xtc,trr,dcd --- default MD.xtc", 
+        default="MD.xtc"
+    )
+    parser.add_argument(
+        "-step", 
+        type=int, 
+        help="value of step --- default 10", 
+        default="10"
+    )
+    
+    return parser
+
+def protein_contacts(args: argparse.ArgumentParser):
 
     Hydrophobic = pd.DataFrame()
     Hydrophobic_time = pd.DataFrame()
@@ -47,8 +80,10 @@ def protein_contacts(topol="MD.pdb", trj="MD.xtc", step=10, ligand="segid PROB")
     HBond = []
     coord_dfs = []
 
-    u = MDAnalysis.Universe(topol, trj)
+    ligand=args.select
+    step = args.step
 
+    u = MDAnalysis.Universe(args.topol, args.trj)
     for ts in u.trajectory[:step]:
 
         ########### Hydrophobic ###############
@@ -215,18 +250,7 @@ def protein_contacts(topol="MD.pdb", trj="MD.xtc", step=10, ligand="segid PROB")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-select", type=str, help="select ligand usign MDAnalsysis selection"
-    )
-    parser.add_argument(
-        "-topol", type=str, help="file pdb,psf,tpr --- default MD.pdb", default="MD.pdb"
-    )
-    parser.add_argument(
-        "-trj", type=str, help="file xtc,trr,dcd --- default MD.xtc", default="MD.xtc"
-    )
-    parser.add_argument(
-        "-step", type=int, help="value of step --- default 10", default="10"
-    )
+    parser = _parse_CLAs()
     args = parser.parse_args()
-    protein_contacts(topol=args.topol, trj=args.trj, step=args.step, ligand=args.lig)
+
+    protein_contacts(args)

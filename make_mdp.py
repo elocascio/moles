@@ -1,4 +1,4 @@
-def make_mdp(mdp="MD", ns=5, dt=0.002, nstxout=0, nstvout=0, nstenergy=0):
+def make_mdp(mdp="MD", ns: int = 500, dt: float = 0.002, nstxout: int = 0, nstvout: int = 0, nstenergy: int = 0) -> "mpd file":
 
     if mdp == "MD":
         with open(f"{mdp}.mdp", "w") as fout:
