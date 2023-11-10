@@ -15,20 +15,10 @@
 # DOI:https://doi.org/10.1016/j.csbj.2023.05.027
 ###########################################
 
-def switch(r, r_0=6, a=6, b=12):
-    return (1 - (r / r_0) ** a) / (1 - (r / r_0) ** b)
-
-
-def switch_functions(r, r0, r_0=6, a=6, b=12):
-    r = np.asarray(r)
-    return np.sum((1 - (r / r_0) ** a) / (1 - (r / r_0) ** b))
-
-
 import MDAnalysis
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import itertools
 from MDAnalysis.analysis.hydrogenbonds.hbond_analysis import HydrogenBondAnalysis as HBA
 import argparse
 
@@ -63,186 +53,326 @@ def _parse_CLAs() -> argparse.ArgumentParser:
         help="value of step --- default 10", 
         default="10"
     )
-    
+    parser.add_argument(
+        "-limit", 
+        type=float, 
+        help="limit value for interaction histogram --- default .2", 
+        default=".2"
+    )
     return parser
 
-def protein_contacts(args: argparse.ArgumentParser):
+def switch(r: np.ndarray, r_0: float =6, a: int =6, b: int =12) -> np.ndarray:
+    """
+    Calculate interaction scores using a rational switching function from PLUMED.
 
-    Hydrophobic = pd.DataFrame()
-    Hydrophobic_time = pd.DataFrame()
-    PiStacking_T = pd.DataFrame()
-    PiStacking_P = pd.DataFrame()
-    PiCation = pd.DataFrame()
-    SaltBridge = pd.DataFrame()
-    SaltBridge_time = pd.DataFrame()
-    Polar = pd.DataFrame()
-    Polar_time = pd.DataFrame()
-    HBond = []
-    coord_dfs = []
+    Args:
+        r (np.ndarray): Atom-atom distances.
+        r_0 (float): Parameter of the switching function (default is 6).
+        a (int): Exponent for the numerator (default is 6).
+        b (int): Exponent for the denominator (default is 12).
 
-    ligand=args.select
-    step = args.step
+    Returns:
+        np.ndarray: Interaction scores converted from distances using the switching function.
+    """
+    return (1 - (r / r_0) ** a) / (1 - (r / r_0) ** b)
 
-    u = MDAnalysis.Universe(args.topol, args.trj)
-    for ts in u.trajectory[:step]:
+def calcualte_center(points: np.ndarray) -> np.ndarray:
+    """
+    calculate center from array of points
+    
+    Args:
+        points (np.ndarray): coordinates of each point
+    
+    Returns:
+        np.ndarray: coordinates of the central point
+        """
+    sum = np.sum(points, axis = 0)
+    center = sum / len(points)
+    return center
 
-        ########### Hydrophobic ###############
-        df_H = pd.DataFrame()
-        lig_c = u.select_atoms(f"{ligand} and (name C*)")
-        prot_c = u.select_atoms(f"(around 7 {ligand}) and name C*")
-        gen = itertools.cycle(range(len(lig_c)))
-        prot_list = []
-        for res, num in list(zip(prot_c.resnames, prot_c.resnums)):
-            prot_list.append(str(num) + str(res))
-        for position in lig_c.positions:
-            scores = switch(np.linalg.norm(prot_c.positions - position, axis=1))
-            df_H[next(gen)] = scores
-        df_H = pd.DataFrame((prot_list, df_H.sum(axis=1))).T
-        df_H[1] = df_H[1].astype(float)
-        df_H = df_H.groupby(0).mean()
-        Hydrophobic = pd.concat([Hydrophobic, df_H])
-        Hydrophobic_time = pd.concat([Hydrophobic_time, df_H], axis=1)
-        ########### Hydrophobic ###############
-        ############## Salt bridge ##############
-        df_Sn = pd.DataFrame()
-        lig_pos = u.select_atoms(f"{ligand} and (name CZ NZ)")
-        lig_neg = u.select_atoms(
-            f"{ligand} and (resname GLU ASP) and name OT1 OT2 OD1 OD2 OE1 OE2"
-        )
-        lig_asn = u.select_atoms(f"{ligand} and (resname ASN)")
-        lig_neg = lig_neg - lig_asn
-        lig_c_term = u.select_atoms(
-            f"{ligand} and (resnum {lig_c.resnums[-1]}) and (name OT*)"
-        )
-        lig_neg = lig_neg + lig_c_term
-        prot_pos = u.select_atoms(
-            f"(around 7 {ligand}) and (resname ARG LYS) and (name CZ NZ)"
-        )
-        prot_neg = u.select_atoms(f"(around 7 {ligand}) and (name OD1 OD2 OE1 OE2)")
-        # pos vs neg #
-        gen = itertools.cycle(range(len(lig_neg)))
-        prot_pos_list = []
-        for res, num in list(zip(prot_pos.resnames, prot_pos.resnums)):
-            prot_pos_list.append(str(num) + str(res))
-        for position in lig_neg.positions:
-            scores = switch(
-                np.linalg.norm(prot_pos.positions - position, axis=1), r_0=5
-            )
-            df_Sn[next(gen)] = scores
-        df_Sn = pd.DataFrame((prot_pos_list, df_Sn.sum(axis=1))).T
-        df_Sn[1] = df_Sn[1].astype(float)
-        df_Sn = df_Sn.groupby(0).mean()
-        # neg vs pos #
-        df_Sp = pd.DataFrame()
-        gen = itertools.cycle(range(len(lig_pos)))
-        prot_neg_list = []
-        for res, num in list(zip(prot_neg.resnames, prot_neg.resnums)):
-            prot_neg_list.append(str(num) + str(res))
-        for position in lig_pos.positions:
-            scores = switch(
-                np.linalg.norm(prot_neg.positions - position, axis=1), r_0=5
-            )
-            df_Sp[next(gen)] = pd.Series(scores)
-        df_Sp = pd.DataFrame((prot_neg_list, df_Sp.sum(axis=1))).T
-        df_Sp[1] = df_Sp[1].astype(float)
-        df_Sp = df_Sp.groupby(0).mean()
-        df_S = pd.DataFrame()
-        df_S = pd.concat([df_Sn, df_Sp])
-        SaltBridge = pd.concat([SaltBridge, df_S])
-        SaltBridge_time = pd.concat([SaltBridge_time, df_S], axis=1)
-        ############## Salt bridge ##############
-        ############## Polar ###############
-        pos = []
-        df_pol = pd.DataFrame()
-        lig_back_polar = u.select_atoms(f"{ligand} and (backbone) and (name O* N*)")
-        lig_polar = u.select_atoms(
-            f"{ligand} and (resname THR SER GLN ASN CYS MET HSD TRP ) and (name O* N* S*)"
-        )
-        lig_polar = lig_polar + lig_back_polar
-        prot_pos = u.select_atoms(
-            f"(around 7 {ligand}) and (resname ARG LYS) and (name CZ NZ)"
-        )
-        gen = itertools.cycle(pos)
-        for res, num in list(zip(prot_pos.resnames, prot_pos.resnums)):
-            pos.append(str(num) + str(res))
-        for position in lig_polar.positions:
-            scores = switch(np.linalg.norm(prot_pos.positions - position, axis=1))
-            df_pol[next(gen)] = pd.Series(scores)
-        df_pol = pd.DataFrame((pos, df_pol.sum(axis=1))).T
-        df_pol[1] = df_pol[1].astype(float)
-        df_pol = df_pol.groupby(0).mean()
+def calculate_plane_normal(p1, p2, p3):
+    """
+    Calculate the normal vector to a plane given three points.
 
-        neg = []
-        df_pol2 = pd.DataFrame()
-        lig_polar_pos = u.select_atoms(
-            f"{ligand} and (resname ARG LYS) and (name CZ NZ)"
-        )
-        prot_back = u.select_atoms(
-            f"(around 7 {ligand}) and (backbone) and (name O* N*)"
-        )
-        prot_polar = u.select_atoms(
-            f"(around 7 {ligand}) and (resname THR SER GLN ASN CYS MET HSD TRP ) and (name O* N* S*)"
-        )
-        prot_polar = prot_polar + prot_back
-        gen = itertools.cycle(neg)
-        for res, num in list(zip(prot_polar.resnames, prot_polar.resnums)):
-            neg.append(str(num) + str(res))
-        for position in lig_polar_pos.positions:
-            scores = switch(np.linalg.norm(prot_polar.positions - position, axis=1))
-            df_pol2[next(gen)] = pd.Series(scores)
-        df_pol2 = pd.DataFrame((neg, df_pol2.sum(axis=1))).T
-        df_pol2[1] = df_pol2[1].astype(float)
-        df_pol2 = df_pol2.groupby(0).mean()
-        df_Pol = pd.DataFrame()
-        df_Pol = pd.concat([df_pol, df_pol2])
-        Polar = pd.concat([Polar, df_Pol])
-        # Polar_time = pd.concat([Polar, df_Pol], axis = 1)
-    ################# Polar #####################
-    ############# H-bond #####################
+    Args:
+        p1 (numpy.ndarray): Coordinates of the first point.
+        p2 (numpy.ndarray): Coordinates of the second point.
+        p3 (numpy.ndarray): Coordinates of the third point.
+
+    Returns:
+        numpy.ndarray: Normal vector to the plane.
+    """
+    v1 = p2 - p1
+    v2 = p3 - p1
+    normal = np.cross(v1, v2)
+    return normal / np.linalg.norm(normal)
+
+def calculate_angle_between_planes(plane1_points, plane2_points):
+    """
+    Calculate the angle in degrees between two planes given three points each.
+
+    Args:
+        plane1_points (tuple): Tuple of three points identifying the first plane.
+        plane2_points (tuple): Tuple of three points identifying the second plane.
+
+    Returns:
+        float: Angle in degrees between the two planes.
+    """
+    normal1 = calculate_plane_normal(*plane1_points)
+    normal2 = calculate_plane_normal(*plane2_points)
+    dot_product = np.dot(normal1, normal2)
+    angle_radians = np.arccos(dot_product)
+    angle_degrees = np.degrees(angle_radians)
+    return angle_degrees
+
+def diction_me(res_list, values, dictionary):
+    """
+    Create or update a dictionary of interactions using the provided residue list and corresponding values.
+
+    Args:
+        res_list (iterable): List of residue identifiers.
+        values (iterable): List of corresponding interaction values.
+        dictionary (dict): Existing dictionary of interactions to update, or an empty dictionary.
+
+    Returns:
+        dict: Updated dictionary of interactions where residue identifiers (keys) are associated with their cumulative values.
+    """
+    for res, score in zip(res_list, values):
+        if res in dictionary:
+            dictionary[res] += score
+        else:
+            dictionary[res] = score
+
+    return dictionary
+
+def calculate_hydrophobic_interaction(u, ligand, hydrophobic_data = {}):
+    """
+    Calculate hydrophobic interaction scores between a ligand and surrounding protein atoms.
+
+    Args:
+        u (MDAnalysis.Universe): MDAnalysis Universe object representing the molecular system.
+        ligand (str): Selection string for the ligand of interest.
+        hydrophobic_data (dict, optional): Dictionary to store hydrophobic interaction scores (default is an empty dictionary).
+
+    Returns:
+        dict: Updated dictionary of hydrophobic interaction scores, where each protein residue is associated with its cumulative score.
+    """
+
+    lig_c = u.select_atoms(f"{ligand} and (name C*)")
+    prot_c = u.select_atoms(f"(around 7 {ligand}) and name C*")
+    prot_c_res = [str(num) + str(res) for res, num in zip(prot_c.resnames, prot_c.resnums)]
+
+    for position in lig_c.positions:
+        scores = switch(np.linalg.norm(prot_c.positions - position, axis=1))
+    
+    hydrophobic_data = diction_me(prot_c_res, scores, hydrophobic_data)
+
+    return hydrophobic_data
+
+def calculate_salt_bridge_interaction(u, ligand, salt_data = {}):
+    """
+    Calculate salt bridge interaction scores between a ligand and surrounding protein atoms.
+
+    Args:
+        u (MDAnalysis.Universe): MDAnalysis Universe object representing the molecular system.
+        ligand (str): Selection string for the ligand of interest.
+        salt_data (dict, optional): Dictionary to store salt bridge interaction scores (default is an empty dictionary).
+
+    Returns:
+        dict: Updated dictionary of salt bridge interaction scores, where each protein residue is associated with its cumulative score.
+    """
+
+    lig_pos = u.select_atoms(f"{ligand} and (name CZ NZ)")
+    lig_neg = u.select_atoms(f"{ligand} and (name OT1 OT2 OD1 OD2 OE1 OE2) and not (resname ASN GLN)")
+    prot_pos = u.select_atoms(f"(around 7 {ligand}) and (resname ARG LYS) and (name CZ NZ)")
+    prot_neg = u.select_atoms(f"(around 7 {ligand}) and (name OD1 OD2 OE1 OE2) and not (resname ASN GLN)")
+    
+    # protein pos vs ligand neg
+    prot_pos_res = [str(num) + str(res) for res, num in zip(prot_pos.resnames, prot_pos.resnums)]
+    for position in lig_neg.positions:
+        scores = switch(np.linalg.norm(prot_pos.positions - position, axis=1))
+    
+    salt_data = diction_me(prot_pos_res, scores, salt_data)
+
+    # protein neg vs ligand pos
+    prot_neg_res = [str(num) + str(res) for res, num in zip(prot_neg.resnames, prot_neg.resnums)]
+    for position in lig_pos.positions:
+        scores = switch(np.linalg.norm(prot_neg.positions - position, axis=1))
+    
+    salt_data = diction_me(prot_neg_res, scores, salt_data)
+
+    return salt_data
+
+def calculate_polar_interaction(u, ligand, polar_data = {}):
+    """
+    Calculate polar interaction scores between a ligand and surrounding protein atoms.
+
+    Args:
+        u (MDAnalysis.Universe): MDAnalysis Universe object representing the molecular system.
+        ligand (str): Selection string for the ligand of interest.
+        polar_data (dict, optional): Dictionary to store polar interaction scores (default is an empty dictionary).
+
+    Returns:
+        dict: Updated dictionary of polar interaction scores, where each protein residue is associated with its cumulative score.
+    """
+
+    lig_back_polar = u.select_atoms(f"{ligand} and (backbone) and (name O* N*)")
+    lig_polar = u.select_atoms(f"{ligand} and (resname THR SER GLN ASN CYS MET HSD TRP TYR) and (name O* N* S*)")
+    lig_polar += lig_back_polar
+    prot_pos = u.select_atoms(f"(around 7 {ligand}) and (resname ARG LYS) and (name CZ NZ)")
+    
+    # protein pos vs ligand neg
+    prot_pos_res = [str(num) + str(res) for res, num in zip(prot_pos.resnames, prot_pos.resnums)]
+    
+    for position in lig_polar.positions:
+        scores = switch(np.linalg.norm(prot_pos.positions - position, axis=1))
+    polar_data = diction_me(prot_pos_res, scores, polar_data)
+
+    # protein neg vs ligand pos
+    lig_pos = u.select_atoms(f"{ligand} and (resname ARG LYS) and (name CZ NZ)")
+    prot_back = u.select_atoms(f"(around 7 {ligand}) and (backbone) and (name O* N*)")
+    prot_polar = u.select_atoms(f"(around 7 {ligand}) and (resname THR SER GLN ASN CYS MET HSD TRP TYR) and (name O* N* S*)")
+    prot_polar += prot_back
+    prot_polar_res = [str(num) + str(res) for res, num in zip(prot_polar.resnames, prot_polar.resnums)]
+    
+    for position in lig_pos.positions:
+        scores = switch(np.linalg.norm(prot_polar.positions - position, axis = 1))
+    polar_data = diction_me(prot_polar_res, scores, polar_data)
+
+    return polar_data
+
+def calculate_h_bond(u, ligand, step, HBond = {}):
+    """
+    Calculate hydrogen bond interactions between a ligand and surrounding atoms.
+
+    Args:
+        u (MDAnalysis.Universe): MDAnalysis Universe object representing the molecular system.
+        ligand (str): Selection string for the ligand of interest.
+        step (int): Number of frames to skip.
+        HBond (dict, optional): Dictionary to store hydrogen bond interaction scores (default is an empty dictionary).
+
+    Returns:
+        dict: Updated dictionary of hydrogen bond interaction scores, where each residue involved in a hydrogen bond is associated with its cumulative score.
+    """
+
     hbondsa = HBA(universe=u)
     hbondsa.hydrogens_sel = f"(around 7 {ligand}) and (name H* and bonded name O* N*)"
     hbondsa.acceptors_sel = f"{ligand} and (name O* N*)"
     hbondsa.run(step=step)
     resulta = hbondsa.count_by_ids()
+    hb_a = [str(num) + str(res) for res, num in zip(u.atoms[resulta[:,1]].resnames, u.atoms[resulta[:,1]].resnums)]
 
     hbondsb = HBA(universe=u)
     hbondsb.hydrogens_sel = f"{ligand} and (name H* and bonded name O* N*)"
     hbondsb.acceptors_sel = f"(around 7 {ligand}) and (name O* N*)"
     hbondsb.run(step=step)
     resultb = hbondsb.count_by_ids()
+    hb_b = [str(num) + str(res) for res, num in zip(u.atoms[resulta[:,2]].resnames, u.atoms[resulta[:,2]].resnums)]
 
-    for val in resulta:
-        HBond.append(
-            [str(u.atoms[val[1]].resnum) + str(u.atoms[val[1]].resname), val[3]]
-        )
-    for val in resultb:
-        HBond.append(
-            [str(u.atoms[val[2]].resnum) + str(u.atoms[val[2]].resname), val[3]]
-        )
-    h = pd.DataFrame(HBond)
-    h.reset_index()
+    HBond = diction_me(hb_a, resulta[:,3], HBond)
+    HBond = diction_me(hb_b, resultb[:,3], HBond)
+    
+    return HBond
 
-    ############ FINAL ################
-    for df in [Hydrophobic, SaltBridge, df_Pol]:
-        df = df.reset_index()
-        df.columns = ["residue", "val"]
-        df = df.groupby(df["residue"]).aggregate({"val": "sum"})
+def calculate_p_stacking(u, ligand, PStack = {}):
+    """
+    Calculate pi-stacking interactions between a ligand and surrounding aromatic residues in the protein.
+
+    Args:
+        u (MDAnalysis.Universe): MDAnalysis Universe object representing the molecular system.
+        ligand (str): Selection string for the ligand of interest.
+        PStack (dict, optional): Dictionary to store pi-stacking interaction scores (default is an empty dictionary).
+
+    Returns:
+        dict: Updated dictionary of pi-stacking interaction scores, where each aromatic residue involved in pi-stacking is associated with its cumulative score.
+    """
+    
+    tyrphe_lig = u.select_atoms(f"{ligand} and resname TYR PHE and name CG CE1 CE2 ")
+    his_lig = u.select_atoms(f"{ligand} and resname HIS and name CG CE1 NE2 ")
+    trp_lig = u.select_atoms(f"{ligand} and resname TRP and name CG CE2 CE3 ")
+    arom_lig = tyrphe_lig + his_lig + trp_lig
+
+    tyrphe_prot = u.select_atoms(f"(resname TYR PHE) and (name CG CE1 CE2)")
+    his_prot = u.select_atoms(f"(resname HIS) and (name CG CE1 NE2)")
+    trp_prot = u.select_atoms(f"(resname TRP) and (name CG CE2 CE3)")
+    arom_prot = tyrphe_prot + his_prot + trp_prot - arom_lig
+
+    arom_lig3 = [arom_lig[i:i + 3] for i in range(0, len(arom_lig), 3)]
+    arom_prot3 = [arom_prot[i:i + 3] for i in range(0, len(arom_prot), 3)]
+
+    for lig_arom in arom_lig3:
+        for prot_arom in arom_prot3:
+            c1 = calcualte_center(lig_arom.positions)
+            c2 = calcualte_center(prot_arom.positions)
+            distance = np.linalg.norm(c1 - c2)
+            if distance < 6:
+                continue
+
+            # Calcola l'angolo di incidenza tra i due piani
+            angle = calculate_angle_between_planes(lig_arom.positions, prot_arom.positions)
+            if angle > 75 and angle < 105:
+                res = str(prot_arom.resnum) + str(prot_arom.resname)
+                if res in PStack:
+                    PStack[res] += 1
+                else:
+                    PStack[res] = 1
+            elif angle > 165 and angle < 195:
+                res = str(prot_arom.resnum) + str(prot_arom.resname)
+                if res in PStack:
+                    PStack[res] += 1
+                else:
+                    PStack[res] = 1
+
+    return PStack
+
+def protein_contacts(args: argparse.ArgumentParser):
+    """
+    Calculate protein-protein interactions and generate visualizations.
+
+    Args:
+        args (argparse.ArgumentParser): Command-line arguments containing:
+            select (str): Selection string for the ligand of interest.
+            topol (file): Topology file for reference (.tpr, .pdb, .psf).
+            trj (file): Trajectory file (.trr, .xtc, .dcd).
+            step (int): Number of frames to skip.
+            limit (float): Threshold value for filtering interactions.
+
+    Returns:
+        None: Saves interaction data and visualizations to files.
+    """
+
+    coord_dfs = []
+    ligand = args.select
+    step = args.step
+
+    u = MDAnalysis.Universe(args.topol, args.trj)
+    for ts in u.trajectory[:step]:
+
+        hydrophobic = calculate_hydrophobic_interaction(u, ligand)
+        salt_bridge = calculate_salt_bridge_interaction(u, ligand)
+        polar = calculate_polar_interaction(u, ligand)
+        pstack = calculate_p_stacking(u, ligand)
+    hbond = calculate_h_bond(u, ligand, step)
+
+    for interaction in [hydrophobic, salt_bridge, polar, pstack]:
+        df = pd.DataFrame.from_dict(interaction, orient="index")
+        df.columns = ["val"]
         df["val"] = df["val"] / df["val"].max()
         coord_dfs.append(df)
-    h.columns = ["residue", "val"]
-    df = h.groupby(h["residue"]).aggregate({"val": "sum"})
-    df["val"] = df["val"] / df["val"].max()
-    coord_dfs.append(df)
 
-    df_all = pd.concat(coord_dfs, axis=1)
+    h = pd.DataFrame(hbond)
+    h = h.set_index(0)
+    h.columns = ["val"]
+    h["val"] = h["val"] / h["val"].max()
+    coord_dfs.append(h)
+
+    df_all = pd.concat(coord_dfs)
     df_all = df_all.fillna(0)
-    df_all = df_all[(df_all.T > 0.2).any()]
-    df_all = df_all.sort_values(by=["residue"])
-    df_all.columns = ["Hydrophobic", "SaltBridge", "Polar", "H-bond"]
+    df_all = df_all[(df_all.T > args.limit).any()]
+    df_all = df_all.sort_index(ascending = False)
+    df_all.columns = ["Hydrophobic", "SaltBridge", "Polar", "p Stack", "H-bond"]
     df_all.to_csv(f"coord_{ligand}.csv")
-    ax = df_all.plot.bar(
-        stacked=True, color=["purple", "mediumblue", "lightgreen", "aqua"]
-    )
+    ax = df_all.plot.bar(stacked=True, color=["purple", "mediumblue", "lightgreen", "black", "aqua"])
     ax.set_ylim(top=4)
     ax.legend(bbox_to_anchor=(1.01, 1), loc="best")
     ax.set_ylabel("coordination")
