@@ -76,7 +76,7 @@ def switch(r: np.ndarray, r_0: float =6, a: int =6, b: int =12) -> np.ndarray:
     """
     return (1 - (r / r_0) ** a) / (1 - (r / r_0) ** b)
 
-def calcualte_center(points: np.ndarray) -> np.ndarray:
+def calculate_center(points: np.ndarray) -> np.ndarray:
     """
     calculate center from array of points
     
@@ -95,12 +95,12 @@ def calculate_plane_normal(p1, p2, p3):
     Calculate the normal vector to a plane given three points.
 
     Args:
-        p1 (numpy.ndarray): Coordinates of the first point.
-        p2 (numpy.ndarray): Coordinates of the second point.
-        p3 (numpy.ndarray): Coordinates of the third point.
+        p1 (np.ndarray): Coordinates of the first point.
+        p2 (np.ndarray): Coordinates of the second point.
+        p3 (np.ndarray): Coordinates of the third point.
 
     Returns:
-        numpy.ndarray: Normal vector to the plane.
+        np.ndarray: Normal vector to the plane.
     """
     v1 = p2 - p1
     v2 = p3 - p1
@@ -124,6 +124,32 @@ def calculate_angle_between_planes(plane1_points, plane2_points):
     angle_radians = np.arccos(dot_product)
     angle_degrees = np.degrees(angle_radians)
     return angle_degrees
+
+def calculate_distance_and_angle_to_plane(point, plane_points):
+    """
+    Calculate the distance between a point and a plane, and the angle between the plane and the point.
+
+    Args:
+        point (np.ndarray): Coordinates of the point.
+        plane_points (tuple): Tuple of three points identifying the plane.
+
+    Returns:
+        tuple: A tuple containing the distance between the point and the plane, and the angle in degrees.
+    """
+    # Calculate the normal vector to the plane
+    plane_normal = calculate_plane_normal(*plane_points)
+    center = calculate_center(*plane_points)
+    # Calculate the vector from any point on the plane to the given point
+    vector_to_point = point - plane_points[0]
+
+    # Calculate the distance between the point and the plane
+    distance_to_plane = np.linalg.norm(center - point)
+
+    # Calculate the angle between the plane and the vector to the point
+    angle_to_plane = np.arccos(np.dot(vector_to_point, plane_normal) / (np.linalg.norm(vector_to_point) * np.linalg.norm(plane_normal)))
+    angle_to_plane_degrees = np.degrees(angle_to_plane)
+
+    return distance_to_plane, angle_to_plane_degrees
 
 def diction_me(res_list, values, dictionary):
     """
@@ -302,10 +328,10 @@ def calculate_p_stacking(u, ligand, PStack = {}):
 
     for lig_arom in arom_lig3:
         for prot_arom in arom_prot3:
-            c1 = calcualte_center(lig_arom.positions)
-            c2 = calcualte_center(prot_arom.positions)
+            c1 = calculate_center(lig_arom.positions)
+            c2 = calculate_center(prot_arom.positions)
             distance = np.linalg.norm(c1 - c2)
-            if distance < 6:
+            if distance > 6:
                 continue
 
             # Calcola l'angolo di incidenza tra i due piani
@@ -355,18 +381,19 @@ def protein_contacts(args: argparse.ArgumentParser):
     hbond = calculate_h_bond(u, ligand, step)
 
     for interaction in [hydrophobic, salt_bridge, polar, pstack]:
+        if len(interaction) == 0:
+            interaction["0GLY"] = 0 
         df = pd.DataFrame.from_dict(interaction, orient="index")
         df.columns = ["val"]
         df["val"] = df["val"] / df["val"].max()
         coord_dfs.append(df)
 
-    h = pd.DataFrame(hbond)
-    h = h.set_index(0)
+    h = pd.DataFrame.from_dict(hbond, orient="index")
     h.columns = ["val"]
     h["val"] = h["val"] / h["val"].max()
     coord_dfs.append(h)
 
-    df_all = pd.concat(coord_dfs)
+    df_all = pd.concat(coord_dfs, axis = 1)
     df_all = df_all.fillna(0)
     df_all = df_all[(df_all.T > args.limit).any()]
     df_all = df_all.sort_index(ascending = False)
